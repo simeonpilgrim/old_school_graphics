@@ -505,9 +505,16 @@ namespace TinyPlanet {
 		}
 
 		static int ARGBFromYCbCr(int Y, int Cb, int Cr) {
-			int r = Y + (int)((1.4f * (Cb - 128)) + 0.5);
-			int g = Y + (int)((-0.343f * (Cr - 128) - 0.711f * (Cb - 128)) + 0.5);
-			int b = Y + (int)((1.765f * (Cr - 128)) + 0.5);
+			// constrain inputs to range 0,255
+			Y = Math.Max(0, Math.Min(255, Y));
+			Cb = Math.Max(0, Math.Min(255, Cb));
+			Cr = Math.Max(0, Math.Min(255, Cr));
+
+			// constrain outputs to range 0,255
+			int r = Math.Max(0, Math.Min(255, Y + (int)((1.4f * (Cb - 128)) + 0.5)));
+			int g = Math.Max(0, Math.Min(255, Y + (int)((-0.343f * (Cr - 128) - 0.711f * (Cb - 128)) + 0.5)));
+			int b = Math.Max(0, Math.Min(255, Y + (int)((1.765f * (Cr - 128)) + 0.5)));
+
 			return (int)(0xFF000000 + (r << 16) + (g << 8) + (b));
 		}
 
