@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tiny_planets", "tiny_planet
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mandelbrot", "Mandelbrot\Mandelbrot.csproj", "{E20DA774-6D58-4324-AC41-A1580FE77725}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LineCurve", "LineCurve\LineCurve.csproj", "{944A6D50-683C-447B-A0D4-2C09EC11BD8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{E20DA774-6D58-4324-AC41-A1580FE77725}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E20DA774-6D58-4324-AC41-A1580FE77725}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E20DA774-6D58-4324-AC41-A1580FE77725}.Release|Any CPU.Build.0 = Release|Any CPU
+		{944A6D50-683C-447B-A0D4-2C09EC11BD8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{944A6D50-683C-447B-A0D4-2C09EC11BD8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{944A6D50-683C-447B-A0D4-2C09EC11BD8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{944A6D50-683C-447B-A0D4-2C09EC11BD8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
