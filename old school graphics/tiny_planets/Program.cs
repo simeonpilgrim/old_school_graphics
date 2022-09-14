@@ -346,9 +346,9 @@ namespace TinyPlanet {
 						int p2 = ARGBAtPoint(dx + 0.5, dy - 0.5, final_ang, ref src, bent_pixels, fix_x);
 						int p3 = ARGBAtPoint(dx + 0.5, dy + 0.5, final_ang, ref src, bent_pixels, fix_x);
 
-						int R = (((p0 >> 16) & 0xFF) + ((p0 >> 16) & 0xFF) + ((p0 >> 16) & 0xFF) + ((p0 >> 16) & 0xFF)) / 4;
-						int G = (((p0 >> 8) & 0xFF) + ((p0 >> 8) & 0xFF) + ((p0 >> 8) & 0xFF) + ((p0 >> 8) & 0xFF)) / 4;
-						int B = ((p0 & 0xFF) + (p0 & 0xFF) + (p0 & 0xFF) + (p0 & 0xFF)) / 4;
+						int R = (((p0 >> 16) & 0xFF) + ((p1 >> 16) & 0xFF) + ((p2 >> 16) & 0xFF) + ((p3 >> 16) & 0xFF)) / 4;
+						int G = (((p0 >> 8) & 0xFF) + ((p1 >> 8) & 0xFF) + ((p2 >> 8) & 0xFF) + ((p3 >> 8) & 0xFF)) / 4;
+						int B = ((p0 & 0xFF) + (p1 & 0xFF) + (p3 & 0xFF) + (p3 & 0xFF)) / 4;
 
 						dst.SetPixel(x, y, Color.FromArgb(R, G, B));
 					}
