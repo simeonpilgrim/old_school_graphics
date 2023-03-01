@@ -34,34 +34,46 @@ namespace TinyPlanet
 
             public static Raw toRaw(string f)
             {
-                Bitmap src = new Bitmap(f);
-                var raw = new Raw(src.Height, src.Width);
-
-                for (int y = 0; y < raw.src_h; y++)
+                using (Bitmap src = new Bitmap(f))
                 {
-                    for (int x = 0; x < raw.src_w; x++)
+                    var raw = new Raw(src.Height, src.Width);
+
+                    for (int y = 0; y < raw.src_h; y++)
                     {
-                        raw.setPixelArgb(x, y, src.GetPixel(x, y).ToArgb());
+                        for (int x = 0; x < raw.src_w; x++)
+                        {
+                            raw.setPixelArgb(x, y, src.GetPixel(x, y).ToArgb());
+                        }
                     }
+                    return raw;
                 }
 
-                return raw;
             }
 
-            public static Bitmap toBitmap(Raw r)
+            public Bitmap toBitmap()
             {
                 // faster now..
-                Bitmap image = new Bitmap(r.src_w, r.src_h, PixelFormat.Format32bppArgb);
-                BitmapData bmpData = image.LockBits(new Rectangle(0, 0, r.src_w, r.src_h), ImageLockMode.WriteOnly, image.PixelFormat);
-
+                Bitmap image = new Bitmap(src_w, src_h, PixelFormat.Format32bppArgb);
+                
+                BitmapData bmpData = image.LockBits(new Rectangle(0, 0, src_w, src_h), ImageLockMode.WriteOnly, image.PixelFormat);
+  
                 IntPtr ptr = bmpData.Scan0;
+                
                 // Copy the RGB values back to the bitmap
-                System.Runtime.InteropServices.Marshal.Copy(r.raw, 0, ptr, r.raw.Length);
+                System.Runtime.InteropServices.Marshal.Copy(raw, 0, ptr, raw.Length);
 
                 // Unlock the bits.
                 image.UnlockBits(bmpData);
 
                 return image;
+            }
+
+            public void SaveBitmap(string fileName)
+            {
+                using (var bmp = toBitmap())
+                {
+                    bmp.Save(fileName);
+                }
             }
         }
 
@@ -73,28 +85,28 @@ namespace TinyPlanet
 
             GifBuilder(raw, @"C:\temp\tinyplanet-out_A.gif", 100, Bend_A);
 
-            var dsta = Bend_A(raw, 100, 100);
-            Raw.toBitmap(dsta).Save(@"C:\temp\tinyplanet-out_A.png");
-
-            var dstc = Bend_C(raw, 100, 100);
-            Raw.toBitmap(dstc).Save(@"C:\temp\tinyplanet-out_C.png");
+            Bend_A(raw, 100, 100)
+                .SaveBitmap(@"C:\temp\tinyplanet-out_A.png");
+          
+            Bend_C(raw, 100, 100)
+                .SaveBitmap(@"C:\temp\tinyplanet-out_C.png");
 
             GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D);
 
-            var dstd = Bend_D(raw, 60, 100);
-            Raw.toBitmap(dstd).Save(@"C:\temp\tinyplanet-out_D.png");
+            Bend_D(raw, 60, 100)
+                .SaveBitmap(@"C:\temp\tinyplanet-out_D.png");
 
-            var dste = Bend_E(raw, 60, 100);
-            Raw.toBitmap(dstd).Save(@"C:\temp\tinyplanet-out_E.png");
+            Bend_E(raw, 60, 100)
+                .SaveBitmap(@"C:\temp\tinyplanet-out_E.png");
 
-            var dstf = Bend_F(raw, 60, 100);
-            Raw.toBitmap(dstd).Save(@"C:\temp\tinyplanet-out_F.png");
+            Bend_F(raw, 60, 100)
+                .SaveBitmap(@"C:\temp\tinyplanet-out_F.png");
 
-            var dstg = Bend_G(raw, 60, 100);
-            Raw.toBitmap(dstd).Save(@"C:\temp\tinyplanet-out_G.png");
-
-            var dsth = Bend_H(raw, 60, 100);
-            Raw.toBitmap(dsth).Save(@"C:\temp\tinyplanet-out_H.png");
+            Bend_G(raw, 60, 100)
+                .SaveBitmap(@"C:\temp\tinyplanet-out_G.png");
+            
+            Bend_H(raw, 60, 100)
+                .SaveBitmap(@"C:\temp\tinyplanet-out_H.png");
 
             GifBuilder(raw, @"C:\temp\tinyplanet-out_H.gif", 100, Bend_H);
         }
@@ -108,25 +120,39 @@ namespace TinyPlanet
             //GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D);
         }
 
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr hObject);
+
         static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, Raw> bender)
         {
             GifBitmapEncoder gEnc = new GifBitmapEncoder();
 
             for (int i = 0; i <= steps; i++)
             {
-                Raw d_raw = bender(src, i, steps);
-                Bitmap dst = Raw.toBitmap(d_raw);
-                Log(string.Format("frame {0}", i));
+                using (Bitmap dst = bender(src, i, steps).toBitmap())
+                {
+                    Log(string.Format("frame {0}", i));
+                    IntPtr hBitmap = dst.GetHbitmap();
 
-                var frame = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                        dst.GetHbitmap(),
-                        IntPtr.Zero,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                gEnc.Frames.Add(BitmapFrame.Create(frame));
+                    try
+                    {
+                        var frame = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                                hBitmap,
+                                IntPtr.Zero,
+                                Int32Rect.Empty,
+                                BitmapSizeOptions.FromEmptyOptions());
+
+                        var bf = BitmapFrame.Create(frame);
+                        gEnc.Frames.Add(bf); 
+                        
+                    } finally
+                    {
+                        DeleteObject(hBitmap);
+                    }
+                }
             }
 
-            gEnc.Save(new FileStream(outfileName, FileMode.Create));
+            gEnc.Save(new FileStream(outfileName, FileMode.Create));  
         }
 
         static Raw Bend_A(Raw src, int bend_i, int total)
