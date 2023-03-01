@@ -129,7 +129,7 @@ namespace TinyPlanet
             for (int i = 0; i <= steps; i++)
             {
                 var dst = bender(src, i, steps);
-
+                Log(string.Format("frame {0}", i));
                 int rawStride = (dst.src_w * pf.BitsPerPixel + 7) / 8;
 
                 BitmapSource bitmap = BitmapSource.Create(dst.src_w, dst.src_h, 96, 96, pf, null, dst.raw, rawStride);
