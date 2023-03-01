@@ -314,6 +314,7 @@ namespace TinyPlanet
             int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
+            int bkground = Color.White.ToArgb();
 
             double bend = bend_i / ((double)total); // turn to percentage;
 
@@ -351,7 +352,7 @@ namespace TinyPlanet
                         int dx = x - dst_origin_x + fix_x;
                         int dy = y - dst_origin_y;
 
-                        dst.setPixelArgb(x, y, ARGBAtPoint(dx, dy, final_ang, src, bent_pixels, fix_x));
+                        dst.setPixelArgb(x, y, ARGBAtPoint(dx, dy, final_ang, src, bent_pixels, fix_x, bkground));
                     }
                 }
             }
@@ -366,6 +367,7 @@ namespace TinyPlanet
             int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
+            int bkground = Color.White.ToArgb();
 
             double bend = bend_i / ((double)total); // turn to percentage;
 
@@ -403,10 +405,10 @@ namespace TinyPlanet
                         int dx = x - dst_origin_x + fix_x;
                         int dy = y - dst_origin_y;
 
-                        int p0 = ARGBAtPoint(dx - 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x);
-                        int p1 = ARGBAtPoint(dx - 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x);
-                        int p2 = ARGBAtPoint(dx + 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x);
-                        int p3 = ARGBAtPoint(dx + 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x);
+                        int p0 = ARGBAtPoint(dx - 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p1 = ARGBAtPoint(dx - 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p2 = ARGBAtPoint(dx + 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p3 = ARGBAtPoint(dx + 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x, bkground);
 
                         int R = (((p0 >> 16) & 0xFF) + ((p1 >> 16) & 0xFF) + ((p2 >> 16) & 0xFF) + ((p3 >> 16) & 0xFF)) / 4;
                         int G = (((p0 >> 8) & 0xFF) + ((p1 >> 8) & 0xFF) + ((p2 >> 8) & 0xFF) + ((p3 >> 8) & 0xFF)) / 4;
@@ -427,6 +429,7 @@ namespace TinyPlanet
             int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
+            int bkground = Color.White.ToArgb();
 
             double bend = bend_i / ((double)total); // turn to percentage;
 
@@ -465,10 +468,10 @@ namespace TinyPlanet
                         int dx = x - dst_origin_x + fix_x;
                         int dy = y - dst_origin_y;
 
-                        int p0 = ARGBAtPoint(dx - 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x);
-                        int p1 = ARGBAtPoint(dx - 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x);
-                        int p2 = ARGBAtPoint(dx + 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x);
-                        int p3 = ARGBAtPoint(dx + 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x);
+                        int p0 = ARGBAtPoint(dx - 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p1 = ARGBAtPoint(dx - 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p2 = ARGBAtPoint(dx + 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p3 = ARGBAtPoint(dx + 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x, bkground);
 
                         int yy, cr, cb;
                         int yt = 0, crt = 0, cbt = 0;
@@ -486,8 +489,6 @@ namespace TinyPlanet
                 }
             }
 
-            Log(string.Format("red {0:x4}", Color.Red.ToArgb()));
-
             return dst;
         }
 
@@ -498,6 +499,7 @@ namespace TinyPlanet
             int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
+            int bkground = Color.White.ToArgb();
 
             double bend = bend_i / ((double)total); // turn to percentage;
 
@@ -535,11 +537,11 @@ namespace TinyPlanet
                         int dx = x - dst_origin_x + fix_x;
                         int dy = y - dst_origin_y;
 
-                        int p0 = ARGBAtPoint(dx - 0.25, dy - 0.25, final_ang, src, bent_pixels, fix_x);
-                        int p1 = ARGBAtPoint(dx - 0.25, dy + 0.25, final_ang, src, bent_pixels, fix_x);
-                        int p2 = ARGBAtPoint(dx + 0.25, dy - 0.25, final_ang, src, bent_pixels, fix_x);
-                        int p3 = ARGBAtPoint(dx + 0.25, dy + 0.25, final_ang, src, bent_pixels, fix_x);
-                        int p4 = ARGBAtPoint(dx, dy, final_ang, src, bent_pixels, fix_x);
+                        int p0 = ARGBAtPoint(dx - 0.25, dy - 0.25, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p1 = ARGBAtPoint(dx - 0.25, dy + 0.25, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p2 = ARGBAtPoint(dx + 0.25, dy - 0.25, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p3 = ARGBAtPoint(dx + 0.25, dy + 0.25, final_ang, src, bent_pixels, fix_x, bkground);
+                        int p4 = ARGBAtPoint(dx, dy, final_ang, src, bent_pixels, fix_x, bkground);
 
                         int yy, cr, cb;
                         int yt = 0, crt = 0, cbt = 0;
@@ -558,8 +560,6 @@ namespace TinyPlanet
                     }
                 }
             }
-
-            //Log(string.Format("red {0:x4}", Color.Red.ToArgb()));
 
             return dst;
         }
@@ -593,7 +593,7 @@ namespace TinyPlanet
             return (int)(0xFF000000 + (r << 16) + (g << 8) + (b));
         }
 
-        static int ARGBAtPoint(double dx, double dy, double final_ang, Raw src, double bent_pixels, int fix_x)
+        static int ARGBAtPoint(double dx, double dy, double final_ang, Raw src, double bent_pixels, int fix_x, int bkGround)
         {
             double r = Math.Sqrt((dx * dx) + (dy * dy));
             double q = Math.Atan2(dy, dx);
@@ -606,8 +606,6 @@ namespace TinyPlanet
                 int dev_x = (int)((mod_ang / final_ang) * bent_pixels) - fix_x + (src.src_w / 2);
                 int dev_y = (int)r;
 
-                //Log(string.Format("x {0} y {1} dx {2} dy{3}, r {4}, q {5}, dev_x {6}, pic_ang {7}", x, y, dx, dy, r, q, dev_x, pic_ang));
-
                 if (dev_x < src.src_w && dev_x >= 0 &&
                     dev_y < src.src_h)
                 {
@@ -615,7 +613,7 @@ namespace TinyPlanet
                 }
             }
 
-            return Color.White.ToArgb();
+            return bkGround; 
         }
     }
 }
