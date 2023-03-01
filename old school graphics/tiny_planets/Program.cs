@@ -120,36 +120,22 @@ namespace TinyPlanet
             //GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D);
         }
 
-        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
-        public static extern bool DeleteObject(IntPtr hObject);
-
         static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, Raw> bender)
         {
             GifBitmapEncoder gEnc = new GifBitmapEncoder();
+            System.Windows.Media.PixelFormat pf = System.Windows.Media.PixelFormats.Pbgra32;
+
 
             for (int i = 0; i <= steps; i++)
             {
-                using (Bitmap dst = bender(src, i, steps).toBitmap())
-                {
-                    Log(string.Format("frame {0}", i));
-                    IntPtr hBitmap = dst.GetHbitmap();
+                var dst = bender(src, i, steps);
 
-                    try
-                    {
-                        var frame = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                                hBitmap,
-                                IntPtr.Zero,
-                                Int32Rect.Empty,
-                                BitmapSizeOptions.FromEmptyOptions());
+                int rawStride = (dst.src_w * pf.BitsPerPixel + 7) / 8;
 
-                        var bf = BitmapFrame.Create(frame);
-                        gEnc.Frames.Add(bf); 
-                        
-                    } finally
-                    {
-                        DeleteObject(hBitmap);
-                    }
-                }
+                BitmapSource bitmap = BitmapSource.Create(dst.src_w, dst.src_h, 96, 96, pf, null, dst.raw, rawStride);
+                var bf = BitmapFrame.Create(bitmap);
+
+                gEnc.Frames.Add(bf);
             }
 
             gEnc.Save(new FileStream(outfileName, FileMode.Create));  
