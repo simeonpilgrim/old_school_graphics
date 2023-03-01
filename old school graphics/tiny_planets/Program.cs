@@ -52,7 +52,7 @@ namespace TinyPlanet
             {
                 // faster now..
                 Bitmap image = new Bitmap(r.src_w, r.src_h, PixelFormat.Format32bppArgb);
-                BitmapData bmpData = image.LockBits(new Rectangle(0, 0, r.src_w, r.src_h), System.Drawing.Imaging.ImageLockMode.WriteOnly, image.PixelFormat);
+                BitmapData bmpData = image.LockBits(new Rectangle(0, 0, r.src_w, r.src_h), ImageLockMode.WriteOnly, image.PixelFormat);
 
                 IntPtr ptr = bmpData.Scan0;
                 // Copy the RGB values back to the bitmap
@@ -69,62 +69,43 @@ namespace TinyPlanet
 
         static void OriginalBlogPostSteps()
         {
-            Bitmap src = new Bitmap(@"C:\temp\tinyplanet-1.jpg");
+            var raw = Raw.toRaw(@"C:\temp\tinyplanet-1.jpg");
 
-            //GifA(src);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_A.gif", 100, Bend_A);
 
-            //Bitmap dsta = Bend_A(src, i);
-            //dsta.Save(@"C:\temp\tinyplanet-out_A.png");
+            var dsta = Bend_A(raw, 100, 100);
+            Raw.toBitmap(dsta).Save(@"C:\temp\tinyplanet-out_A.png");
 
-            //Bitmap dstc = Bend_C(src, 100);
-            //dstc.Save(@"C:\temp\tinyplanet-out_C.png");
+            var dstc = Bend_C(raw, 100, 100);
+            Raw.toBitmap(dstc).Save(@"C:\temp\tinyplanet-out_C.png");
 
-            //GifD(src);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D);
 
-            //Bitmap dstd = Bend_D(src, 60);
-            //dstd.Save(@"C:\temp\tinyplanet-out_D.png");
+            var dstd = Bend_D(raw, 60, 100);
+            Raw.toBitmap(dstd).Save(@"C:\temp\tinyplanet-out_D.png");
 
-            //Bitmap dste = Bend_E(src, 60);
-            //dste.Save(@"C:\temp\tinyplanet-out_E.png");
+            var dste = Bend_E(raw, 60, 100);
+            Raw.toBitmap(dstd).Save(@"C:\temp\tinyplanet-out_E.png");
 
-            //Bitmap dstf = Bend_F(src, 60);
-            //dstf.Save(@"C:\temp\tinyplanet-out_F.png");
+            var dstf = Bend_F(raw, 60, 100);
+            Raw.toBitmap(dstd).Save(@"C:\temp\tinyplanet-out_F.png");
 
-            //Bitmap dstg = Bend_G(src, 60);
-            //dstg.Save(@"C:\temp\tinyplanet-out_G.png");
+            var dstg = Bend_G(raw, 60, 100);
+            Raw.toBitmap(dstd).Save(@"C:\temp\tinyplanet-out_G.png");
 
-            //Bitmap dsth = Bend_H(src, 60);
-            //dsth.Save(@"C:\temp\tinyplanet-out_H.png");
+            var dsth = Bend_H(raw, 60, 100);
+            Raw.toBitmap(dsth).Save(@"C:\temp\tinyplanet-out_H.png");
 
-            GifH(src);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_H.gif", 100, Bend_H);
         }
 
         static void Main(string[] args)
         {
+            OriginalBlogPostSteps();
 
-            var raw = Raw.toRaw(@"C:\temp\tinyplanet-1.jpg");
+            //var raw = Raw.toRaw(@"C:\temp\tinyplanet-1.jpg");
 
-            GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D);
-        }
-
-        static void GifA(Bitmap src)
-        {
-            GifBitmapEncoder gEnc = new GifBitmapEncoder();
-
-            for (int i = 0; i <= 100; i++)
-            {
-                Bitmap dst = Bend_A(src, i);
-                Log(string.Format("frame {0}", i));
-
-                var frame = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                        dst.GetHbitmap(),
-                        IntPtr.Zero,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                gEnc.Frames.Add(BitmapFrame.Create(frame));
-            }
-
-            gEnc.Save(new FileStream(@"C:\temp\tinyplanet-out_A.gif", FileMode.Create));
+            //GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D);
         }
 
         static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, Raw> bender)
@@ -148,47 +129,23 @@ namespace TinyPlanet
             gEnc.Save(new FileStream(outfileName, FileMode.Create));
         }
 
-        static void GifH(Bitmap src)
+        static Raw Bend_A(Raw src, int bend_i, int total)
         {
-            GifBitmapEncoder gEnc = new GifBitmapEncoder();
-
-            for (int i = 0; i <= 100; i++)
-            {
-                Bitmap dst = Bend_H(src, i);
-                Log(string.Format("frame {0}", i));
-
-                var frame = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                        dst.GetHbitmap(),
-                        IntPtr.Zero,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                gEnc.Frames.Add(BitmapFrame.Create(frame));
-            }
-
-            gEnc.Save(new FileStream(@"C:\temp\tinyplanet-out_H.gif", FileMode.Create));
-        }
-
-        static Bitmap Bend_A(Bitmap src, int bend_i)
-        {
-            int src_half_width = src.Width / 2;
-            int dst_width = (src.Height * 2) + src.Width;
-            int dst_height = src.Height * 2;
+            int src_half_width = src.src_w / 2;
+            int dst_width = (src.src_h * 2) + src.src_w;
+            int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
 
-            double bend = bend_i / 100.0; // turn to percentage;
+            double bend = bend_i / ((double)total); // turn to percentage;
 
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
-
-            Bitmap dst = new Bitmap(dst_width, dst_height);
-            Graphics g = Graphics.FromImage(dst);
-            g.Clear(Color.White);
-            g.DrawImage(dst, 0, 0, dst.Width, dst.Height);
+            var dst = new Raw(dst_height, dst_width);
+            dst.setAllArgb(Color.White.ToArgb());
 
 
             for (int x = 0; x < src_half_width; x++)
@@ -204,22 +161,22 @@ namespace TinyPlanet
                     double cos = Math.Cos(rad);
 
 
-                    for (int y = 0; y < src.Height; y++)
+                    for (int y = 0; y < src.src_h; y++)
                     {
-                        dst.SetPixel(dst_origin_x - bend_x + (int)(cos * y), dst_origin_y - (int)(sin * y), src.GetPixel(src_half_width - x, src.Height - y - 1));
-                        dst.SetPixel(dst_origin_x + bend_x - (int)(cos * y), dst_origin_y - (int)(sin * y), src.GetPixel(src_half_width + x, src.Height - y - 1));
+                        dst.setPixelArgb(dst_origin_x - bend_x + (int)(cos * y), dst_origin_y - (int)(sin * y), src.getPixelArgb(src_half_width - x, src.src_h - y - 1));
+                        dst.setPixelArgb(dst_origin_x + bend_x - (int)(cos * y), dst_origin_y - (int)(sin * y), src.getPixelArgb(src_half_width + x, src.src_h - y - 1));
                     }
                 }
                 else
                 {
                     // do rectilinear
-                    for (int y = 0; y < src.Height; y++)
+                    for (int y = 0; y < src.src_h; y++)
                     {
                         // left side
-                        dst.SetPixel(dst_origin_x - x, dst_origin_y - y, src.GetPixel(src_half_width - x, src.Height - y - 1));
+                        dst.setPixelArgb(dst_origin_x - x, dst_origin_y - y, src.getPixelArgb(src_half_width - x, src.src_h - y - 1));
 
                         // right side
-                        dst.SetPixel(dst_origin_x + x, dst_origin_y - y, src.GetPixel(src_half_width + x, src.Height - y - 1));
+                        dst.setPixelArgb(dst_origin_x + x, dst_origin_y - y, src.getPixelArgb(src_half_width + x, src.src_h - y - 1));
                     }
                 }
             }
@@ -227,19 +184,19 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Bitmap Bend_C(Bitmap src, int bend_i)
+        static Raw Bend_C(Raw src, int bend_i, int total)
         {
-            int src_half_width = src.Width / 2;
-            int dst_width = (src.Height * 2) + src.Width;
-            int dst_height = src.Height * 2;
+            int src_half_width = src.src_w / 2;
+            int dst_width = (src.src_h * 2) + src.src_w;
+            int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
 
             double bent_pixels = src_half_width;
             double final_ang = Math.PI;
 
+            var dst = new Raw(dst_height, dst_width);
 
-            Bitmap dst = new Bitmap(dst_width, dst_height);
             for (int x = 0; x < dst_width; x++)
             {
                 for (int y = 0; y < dst_height; y++)
@@ -257,12 +214,10 @@ namespace TinyPlanet
                     int dev_x = (int)((mod_ang / final_ang) * bent_pixels);
                     int dev_y = (int)r;
 
-                    //Log(string.Format("x {0} y {1} dx {2} dy{3}, r {4}, q {5}, dev_x {6}, pic_ang {7}", x, y, dx, dy, r, q, dev_x, pic_ang));
-
                     if (Math.Abs(dev_x) <= src_half_width &&
-                        dev_y < src.Height)
+                        dev_y < src.src_h)
                     {
-                        dst.SetPixel(x, y, src.GetPixel(dev_x + src_half_width, src.Height - dev_y - 1));
+                        dst.setPixelArgb(x, y, src.getPixelArgb(dev_x + src_half_width, src.src_h - dev_y - 1));
                     }
                 }
             }
@@ -286,7 +241,6 @@ namespace TinyPlanet
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
             var dst = new Raw(dst_height, dst_width);
@@ -341,28 +295,24 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Bitmap Bend_E(Bitmap src, int bend_i)
+        static Raw Bend_E(Raw src, int bend_i, int total)
         {
-            int src_half_width = src.Width / 2;
-            int dst_width = (src.Height * 2) + src.Width;
-            int dst_height = src.Height * 2;
+            int src_half_width = src.src_w / 2;
+            int dst_width = (src.src_h * 2) + src.src_w;
+            int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
 
-            double bend = bend_i / 100.0; // turn to percentage;
+            double bend = bend_i / ((double)total); // turn to percentage;
 
 
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
-
-            Bitmap dst = new Bitmap(dst_width, dst_height);
-            Graphics g = Graphics.FromImage(dst);
-            g.Clear(Color.White);
-            g.DrawImage(dst, 0, 0, dst.Width, dst.Height);
+            var dst = new Raw(dst_height, dst_width);
+            dst.setAllArgb(Color.White.ToArgb());
 
             int bend_start_x = dst_origin_x - bend_x;
             int bend_end_x = dst_origin_x + bend_x;
@@ -378,9 +328,9 @@ namespace TinyPlanet
                         x < bend_end_x)
                     {
                         // rectanliner 
-                        if (y < src.Height)
+                        if (y < src.src_h)
                         {
-                            dst.SetPixel(x, y, src.GetPixel(ox, y));
+                            dst.setPixelArgb(x, y, src.getPixelArgb(ox, y));
                         }
                     }
                     else
@@ -389,7 +339,7 @@ namespace TinyPlanet
                         int dx = x - dst_origin_x + fix_x;
                         int dy = y - dst_origin_y;
 
-                        dst.SetPixel(x, y, Color.FromArgb(ARGBAtPoint(dx, dy, final_ang, ref src, bent_pixels, fix_x)));
+                        dst.setPixelArgb(x, y, ARGBAtPoint(dx, dy, final_ang, src, bent_pixels, fix_x));
                     }
                 }
             }
@@ -397,28 +347,24 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Bitmap Bend_F(Bitmap src, int bend_i)
+        static Raw Bend_F(Raw src, int bend_i, int total)
         {
-            int src_half_width = src.Width / 2;
-            int dst_width = (src.Height * 2) + src.Width;
-            int dst_height = src.Height * 2;
+            int src_half_width = src.src_w / 2;
+            int dst_width = (src.src_h * 2) + src.src_w;
+            int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
 
-            double bend = bend_i / 100.0; // turn to percentage;
+            double bend = bend_i / ((double)total); // turn to percentage;
 
 
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
-
-            Bitmap dst = new Bitmap(dst_width, dst_height);
-            Graphics g = Graphics.FromImage(dst);
-            g.Clear(Color.White);
-            g.DrawImage(dst, 0, 0, dst.Width, dst.Height);
+            var dst = new Raw(dst_height, dst_width);
+            dst.setAllArgb(Color.White.ToArgb());
 
             int bend_start_x = dst_origin_x - bend_x;
             int bend_end_x = dst_origin_x + bend_x;
@@ -434,9 +380,9 @@ namespace TinyPlanet
                         x < bend_end_x)
                     {
                         // rectanliner 
-                        if (y < src.Height)
+                        if (y < src.src_h)
                         {
-                            dst.SetPixel(x, y, src.GetPixel(ox, y));
+                            dst.setPixelArgb(x, y, src.getPixelArgb(ox, y));
                         }
                     }
                     else
@@ -445,16 +391,16 @@ namespace TinyPlanet
                         int dx = x - dst_origin_x + fix_x;
                         int dy = y - dst_origin_y;
 
-                        int p0 = ARGBAtPoint(dx - 0.5, dy - 0.5, final_ang, ref src, bent_pixels, fix_x);
-                        int p1 = ARGBAtPoint(dx - 0.5, dy + 0.5, final_ang, ref src, bent_pixels, fix_x);
-                        int p2 = ARGBAtPoint(dx + 0.5, dy - 0.5, final_ang, ref src, bent_pixels, fix_x);
-                        int p3 = ARGBAtPoint(dx + 0.5, dy + 0.5, final_ang, ref src, bent_pixels, fix_x);
+                        int p0 = ARGBAtPoint(dx - 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x);
+                        int p1 = ARGBAtPoint(dx - 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x);
+                        int p2 = ARGBAtPoint(dx + 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x);
+                        int p3 = ARGBAtPoint(dx + 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x);
 
                         int R = (((p0 >> 16) & 0xFF) + ((p1 >> 16) & 0xFF) + ((p2 >> 16) & 0xFF) + ((p3 >> 16) & 0xFF)) / 4;
                         int G = (((p0 >> 8) & 0xFF) + ((p1 >> 8) & 0xFF) + ((p2 >> 8) & 0xFF) + ((p3 >> 8) & 0xFF)) / 4;
                         int B = ((p0 & 0xFF) + (p1 & 0xFF) + (p3 & 0xFF) + (p3 & 0xFF)) / 4;
 
-                        dst.SetPixel(x, y, Color.FromArgb(R, G, B));
+                        dst.setPixelArgb(x, y, (R<<16) + (G<<8) + B);
                     }
                 }
             }
@@ -462,28 +408,25 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Bitmap Bend_G(Bitmap src, int bend_i)
+        static Raw Bend_G(Raw src, int bend_i, int total)
         {
-            int src_half_width = src.Width / 2;
-            int dst_width = (src.Height * 2) + src.Width;
-            int dst_height = src.Height * 2;
+            int src_half_width = src.src_w / 2;
+            int dst_width = (src.src_h * 2) + src.src_w;
+            int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
 
-            double bend = bend_i / 100.0; // turn to percentage;
+            double bend = bend_i / ((double)total); // turn to percentage;
 
 
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
 
-            Bitmap dst = new Bitmap(dst_width, dst_height);
-            Graphics g = Graphics.FromImage(dst);
-            g.Clear(Color.White);
-            g.DrawImage(dst, 0, 0, dst.Width, dst.Height);
+            var dst = new Raw(dst_height, dst_width);
+            dst.setAllArgb(Color.White.ToArgb());
 
             int bend_start_x = dst_origin_x - bend_x;
             int bend_end_x = dst_origin_x + bend_x;
@@ -499,9 +442,9 @@ namespace TinyPlanet
                         x < bend_end_x)
                     {
                         // rectanliner 
-                        if (y < src.Height)
+                        if (y < src.src_h)
                         {
-                            dst.SetPixel(x, y, src.GetPixel(ox, y));
+                            dst.setPixelArgb(x, y, src.getPixelArgb(ox, y));
                         }
                     }
                     else
@@ -510,10 +453,10 @@ namespace TinyPlanet
                         int dx = x - dst_origin_x + fix_x;
                         int dy = y - dst_origin_y;
 
-                        int p0 = ARGBAtPoint(dx - 0.5, dy - 0.5, final_ang, ref src, bent_pixels, fix_x);
-                        int p1 = ARGBAtPoint(dx - 0.5, dy + 0.5, final_ang, ref src, bent_pixels, fix_x);
-                        int p2 = ARGBAtPoint(dx + 0.5, dy - 0.5, final_ang, ref src, bent_pixels, fix_x);
-                        int p3 = ARGBAtPoint(dx + 0.5, dy + 0.5, final_ang, ref src, bent_pixels, fix_x);
+                        int p0 = ARGBAtPoint(dx - 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x);
+                        int p1 = ARGBAtPoint(dx - 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x);
+                        int p2 = ARGBAtPoint(dx + 0.5, dy - 0.5, final_ang, src, bent_pixels, fix_x);
+                        int p3 = ARGBAtPoint(dx + 0.5, dy + 0.5, final_ang, src, bent_pixels, fix_x);
 
                         int yy, cr, cb;
                         int yt = 0, crt = 0, cbt = 0;
@@ -526,7 +469,7 @@ namespace TinyPlanet
                         YCbCrFromRGB(p3, out yy, out cr, out cb);
                         yt += yy; crt += cr; cbt += cb;
 
-                        dst.SetPixel(x, y, Color.FromArgb(ARGBFromYCbCr(yt / 4, cbt / 4, crt / 4)));
+                        dst.setPixelArgb(x, y, ARGBFromYCbCr(yt / 4, cbt / 4, crt / 4));
                     }
                 }
             }
@@ -536,28 +479,24 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Bitmap Bend_H(Bitmap src, int bend_i)
+        static Raw Bend_H(Raw src, int bend_i, int total)
         {
-            int src_half_width = src.Width / 2;
-            int dst_width = (src.Height * 2) + src.Width;
-            int dst_height = src.Height * 2;
+            int src_half_width = src.src_w / 2;
+            int dst_width = (src.src_h * 2) + src.src_w;
+            int dst_height = src.src_h * 2;
             int dst_origin_x = dst_width / 2;
             int dst_origin_y = dst_height / 2;
 
-            double bend = bend_i / 100.0; // turn to percentage;
+            double bend = bend_i / ((double)total); // turn to percentage;
 
 
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
-
-            Bitmap dst = new Bitmap(dst_width, dst_height);
-            Graphics g = Graphics.FromImage(dst);
-            g.Clear(Color.White);
-            g.DrawImage(dst, 0, 0, dst.Width, dst.Height);
+            var dst = new Raw(dst_height, dst_width);
+            dst.setAllArgb(Color.White.ToArgb());
 
             int bend_start_x = dst_origin_x - bend_x;
             int bend_end_x = dst_origin_x + bend_x;
@@ -573,9 +512,9 @@ namespace TinyPlanet
                         x < bend_end_x)
                     {
                         // rectanliner 
-                        if (y < src.Height)
+                        if (y < src.src_h)
                         {
-                            dst.SetPixel(x, y, src.GetPixel(ox, y));
+                            dst.setPixelArgb(x, y, src.getPixelArgb(ox, y));
                         }
                     }
                     else
@@ -584,11 +523,11 @@ namespace TinyPlanet
                         int dx = x - dst_origin_x + fix_x;
                         int dy = y - dst_origin_y;
 
-                        int p0 = ARGBAtPoint(dx - 0.25, dy - 0.25, final_ang, ref src, bent_pixels, fix_x);
-                        int p1 = ARGBAtPoint(dx - 0.25, dy + 0.25, final_ang, ref src, bent_pixels, fix_x);
-                        int p2 = ARGBAtPoint(dx + 0.25, dy - 0.25, final_ang, ref src, bent_pixels, fix_x);
-                        int p3 = ARGBAtPoint(dx + 0.25, dy + 0.25, final_ang, ref src, bent_pixels, fix_x);
-                        int p4 = ARGBAtPoint(dx, dy, final_ang, ref src, bent_pixels, fix_x);
+                        int p0 = ARGBAtPoint(dx - 0.25, dy - 0.25, final_ang, src, bent_pixels, fix_x);
+                        int p1 = ARGBAtPoint(dx - 0.25, dy + 0.25, final_ang, src, bent_pixels, fix_x);
+                        int p2 = ARGBAtPoint(dx + 0.25, dy - 0.25, final_ang, src, bent_pixels, fix_x);
+                        int p3 = ARGBAtPoint(dx + 0.25, dy + 0.25, final_ang, src, bent_pixels, fix_x);
+                        int p4 = ARGBAtPoint(dx, dy, final_ang, src, bent_pixels, fix_x);
 
                         int yy, cr, cb;
                         int yt = 0, crt = 0, cbt = 0;
@@ -603,12 +542,12 @@ namespace TinyPlanet
                         YCbCrFromRGB(p4, out yy, out cr, out cb);
                         yt += yy; crt += cr; cbt += cb;
 
-                        dst.SetPixel(x, y, Color.FromArgb(ARGBFromYCbCr(yt / 5, cbt / 5, crt / 5)));
+                        dst.setPixelArgb(x, y, ARGBFromYCbCr(yt / 5, cbt / 5, crt / 5));
                     }
                 }
             }
 
-            Log(string.Format("red {0:x4}", Color.Red.ToArgb()));
+            //Log(string.Format("red {0:x4}", Color.Red.ToArgb()));
 
             return dst;
         }
@@ -642,8 +581,7 @@ namespace TinyPlanet
             return (int)(0xFF000000 + (r << 16) + (g << 8) + (b));
         }
 
-
-        static int ARGBAtPoint(double dx, double dy, double final_ang, ref Bitmap src, double bent_pixels, int fix_x)
+        static int ARGBAtPoint(double dx, double dy, double final_ang, Raw src, double bent_pixels, int fix_x)
         {
             double r = Math.Sqrt((dx * dx) + (dy * dy));
             double q = Math.Atan2(dy, dx);
@@ -653,20 +591,19 @@ namespace TinyPlanet
 
             if (Math.Abs(mod_ang) <= final_ang)
             {
-                int dev_x = (int)((mod_ang / final_ang) * bent_pixels) - fix_x + (src.Width / 2);
+                int dev_x = (int)((mod_ang / final_ang) * bent_pixels) - fix_x + (src.src_w / 2);
                 int dev_y = (int)r;
 
                 //Log(string.Format("x {0} y {1} dx {2} dy{3}, r {4}, q {5}, dev_x {6}, pic_ang {7}", x, y, dx, dy, r, q, dev_x, pic_ang));
 
-                if (dev_x < src.Width && dev_x >= 0 &&
-                    dev_y < src.Height)
+                if (dev_x < src.src_w && dev_x >= 0 &&
+                    dev_y < src.src_h)
                 {
-                    return src.GetPixel(dev_x, src.Height - dev_y - 1).ToArgb();
+                    return src.getPixelArgb(dev_x, src.src_h - dev_y - 1);
                 }
             }
 
             return Color.White.ToArgb();
         }
     }
-
 }
