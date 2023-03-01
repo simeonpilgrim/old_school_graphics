@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
 using System.Windows;
 using System.IO;
+using System.Drawing.Imaging;
 
 namespace TinyPlanet
 {
@@ -52,21 +50,18 @@ namespace TinyPlanet
 
             public static Bitmap toBitmap(Raw r)
             {
-                // slow for now..
-                Bitmap dst = new Bitmap(r.src_w, r.src_h);
-                Graphics g = Graphics.FromImage(dst);
-                g.Clear(Color.White);
-                g.DrawImage(dst, 0, 0, dst.Width, dst.Height);
+                // faster now..
+                Bitmap image = new Bitmap(r.src_w, r.src_h, PixelFormat.Format32bppArgb);
+                BitmapData bmpData = image.LockBits(new Rectangle(0, 0, r.src_w, r.src_h), System.Drawing.Imaging.ImageLockMode.WriteOnly, image.PixelFormat);
 
-                for (int y = 0; y < r.src_h; y++)
-                {
-                    for (int x = 0; x < r.src_w; x++)
-                    {
-                        dst.SetPixel(x, y, Color.FromArgb(r.getPixelArgb(x, y)));
-                    }
-                }
+                IntPtr ptr = bmpData.Scan0;
+                // Copy the RGB values back to the bitmap
+                System.Runtime.InteropServices.Marshal.Copy(r.raw, 0, ptr, r.raw.Length);
 
-                return dst;
+                // Unlock the bits.
+                image.UnlockBits(bmpData);
+
+                return image;
             }
         }
 
@@ -109,7 +104,7 @@ namespace TinyPlanet
 
             var raw = Raw.toRaw(@"C:\temp\tinyplanet-1.jpg");
 
-            GifD(raw, @"C:\temp\tinyplanet-out_D.gif", 100);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D);
         }
 
         static void GifA(Bitmap src)
@@ -132,13 +127,13 @@ namespace TinyPlanet
             gEnc.Save(new FileStream(@"C:\temp\tinyplanet-out_A.gif", FileMode.Create));
         }
 
-        static void GifD(Raw src, string outfileName, int steps)
+        static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, Raw> bender)
         {
             GifBitmapEncoder gEnc = new GifBitmapEncoder();
 
             for (int i = 0; i <= steps; i++)
             {
-                Raw d_raw = Bend_D(src, i, steps);
+                Raw d_raw = bender(src, i, steps);
                 Bitmap dst = Raw.toBitmap(d_raw);
                 Log(string.Format("frame {0}", i));
 
