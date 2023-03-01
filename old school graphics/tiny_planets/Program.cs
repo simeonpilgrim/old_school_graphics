@@ -12,6 +12,12 @@ namespace TinyPlanet
 {
     class Program
     {
+        static void Log(string msg)
+        {
+            Debug.WriteLine(msg);
+            Console.WriteLine(msg);
+        }
+
         static void Main(string[] args)
         {
             Bitmap src = new Bitmap(@"C:\temp\tinyplanet-1.jpg");
@@ -51,7 +57,7 @@ namespace TinyPlanet
             for (int i = 0; i <= 100; i++)
             {
                 Bitmap dst = Bend_A(src, i);
-                Debug.WriteLine(string.Format("frame {0}", i));
+                Log(string.Format("frame {0}", i));
 
                 var frame = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
                         dst.GetHbitmap(),
@@ -91,7 +97,7 @@ namespace TinyPlanet
             for (int i = 0; i <= 100; i++)
             {
                 Bitmap dst = Bend_H(src, i);
-                Debug.WriteLine(string.Format("frame {0}", i));
+                Log(string.Format("frame {0}", i));
 
                 var frame = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
                         dst.GetHbitmap(),
@@ -117,7 +123,7 @@ namespace TinyPlanet
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Debug.WriteLine(string.Format("final_ang_d {0}", final_ang_d));
+            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
 
@@ -135,7 +141,7 @@ namespace TinyPlanet
                     int bx = x - bend_x;
 
                     double rad = ((bx / bent_pixels) * final_ang) + (Math.PI / 2.0);
-                    //Debug.WriteLine(string.Format("bend % {0} ang {1}", bx / bent_pixels, rad * (180 / Math.PI)));
+                    //Log(string.Format("bend % {0} ang {1}", bx / bent_pixels, rad * (180 / Math.PI)));
                     double sin = Math.Sin(rad);
                     double cos = Math.Cos(rad);
 
@@ -193,7 +199,7 @@ namespace TinyPlanet
                     int dev_x = (int)((mod_ang / final_ang) * bent_pixels);
                     int dev_y = (int)r;
 
-                    //Debug.WriteLine(string.Format("x {0} y {1} dx {2} dy{3}, r {4}, q {5}, dev_x {6}, pic_ang {7}", x, y, dx, dy, r, q, dev_x, pic_ang));
+                    //Log(string.Format("x {0} y {1} dx {2} dy{3}, r {4}, q {5}, dev_x {6}, pic_ang {7}", x, y, dx, dy, r, q, dev_x, pic_ang));
 
                     if (Math.Abs(dev_x) <= src_half_width &&
                         dev_y < src.Height)
@@ -220,7 +226,7 @@ namespace TinyPlanet
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Debug.WriteLine(string.Format("final_ang_d {0}", final_ang_d));
+            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
 
@@ -265,7 +271,6 @@ namespace TinyPlanet
                             int dev_x = (int)((mod_ang / final_ang) * bent_pixels) - fix_x + src_half_width;
                             int dev_y = (int)r;
 
-                            //Debug.WriteLine(string.Format("x {0} y {1} dx {2} dy{3}, r {4}, q {5}, dev_x {6}, pic_ang {7}", x, y, dx, dy, r, q, dev_x, pic_ang));
 
                             if (dev_x < src.Width && dev_x >= 0 &&
                                 dev_y < src.Height)
@@ -294,7 +299,7 @@ namespace TinyPlanet
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Debug.WriteLine(string.Format("final_ang_d {0}", final_ang_d));
+            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
 
@@ -350,7 +355,7 @@ namespace TinyPlanet
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Debug.WriteLine(string.Format("final_ang_d {0}", final_ang_d));
+            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
 
@@ -415,7 +420,7 @@ namespace TinyPlanet
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Debug.WriteLine(string.Format("final_ang_d {0}", final_ang_d));
+            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
 
@@ -470,7 +475,7 @@ namespace TinyPlanet
                 }
             }
 
-            Debug.WriteLine(string.Format("red {0:x4}", Color.Red.ToArgb()));
+            Log(string.Format("red {0:x4}", Color.Red.ToArgb()));
 
             return dst;
         }
@@ -489,7 +494,7 @@ namespace TinyPlanet
             int bend_x = (int)(src_half_width * (1.0 - bend));
             double bent_pixels = src_half_width - bend_x;
             double final_ang_d = 180.0 * bend;
-            //Debug.WriteLine(string.Format("final_ang_d {0}", final_ang_d));
+            //Log(string.Format("final_ang_d {0}", final_ang_d));
             double final_ang = final_ang_d * (Math.PI / 180.0);
 
 
@@ -547,7 +552,7 @@ namespace TinyPlanet
                 }
             }
 
-            Debug.WriteLine(string.Format("red {0:x4}", Color.Red.ToArgb()));
+            Log(string.Format("red {0:x4}", Color.Red.ToArgb()));
 
             return dst;
         }
@@ -591,7 +596,7 @@ namespace TinyPlanet
                 int dev_x = (int)((mod_ang / final_ang) * bent_pixels) - fix_x + (src.Width / 2);
                 int dev_y = (int)r;
 
-                //Debug.WriteLine(string.Format("x {0} y {1} dx {2} dy{3}, r {4}, q {5}, dev_x {6}, pic_ang {7}", x, y, dx, dy, r, q, dev_x, pic_ang));
+                //Log(string.Format("x {0} y {1} dx {2} dy{3}, r {4}, q {5}, dev_x {6}, pic_ang {7}", x, y, dx, dy, r, q, dev_x, pic_ang));
 
                 if (dev_x < src.Width && dev_x >= 0 &&
                     dev_y < src.Height)
