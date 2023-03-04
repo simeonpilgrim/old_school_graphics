@@ -6,9 +6,9 @@ using System.IO;
 
 namespace TinyPlanet
 {
-    class Program
+    public class Program
     {
-        static void Log(string msg)
+        public static void Log(string msg)
         {
             Debug.WriteLine(msg);
             Console.WriteLine(msg);
@@ -61,7 +61,7 @@ namespace TinyPlanet
             var mc = new MathCache(raw.src_h + 1, out_w + 1);
             Log($"MathCache {sw.ElapsedMilliseconds} ms");
 
-            GifBuilder(raw, @"C:\temp\tinyplanet-out_K.gif", 20, Bend_K, mc);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_L.gif", 20, Bend_L, mc);
         }
 
         static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, MathCache, Raw> bender, MathCache mc)
@@ -737,6 +737,117 @@ namespace TinyPlanet
                             int src_x = rad_x;
                             int src_y = src.src_h - rad_y - 1;
                             dst.setPixelArgb(dst_x, dst_y, src.getPixelArgb(src_x, src_y));
+                        }
+                    }
+                }
+            }
+
+            return dst;
+        }
+
+        static Raw Bend_L(Raw src, int bend_i, int total, MathCache mc)
+        {
+            int src_half_width = src.src_w / 2;
+            int dst_width = (src.src_h * 2) + src_half_width;
+            int dst_height = src.src_h * 2;
+            int dst_origin_x = dst_width / 2;
+            int dst_origin_y = dst_height / 2;
+
+            float bend = bend_i / ((float)total); // turn to percentage;
+
+            int bend_x = (int)(src_half_width * (1.0 - bend));
+            float bent_pixels = src_half_width - bend_x;
+            float final_ang = bend * MathCache.F_PI;
+
+            var dst = new Raw(dst_height, dst_width);
+            //dst.setAllArgb(Color.White.ToArgb());
+
+            int dst_x_bend_start = dst_origin_x - bend_x;
+            int dst_x_bend_end = dst_origin_x + bend_x;
+
+            int src_half_width_minus_bend_x = src_half_width - bend_x;
+            int src_half_width_plus_bend_x = src_half_width + bend_x;
+            float bent_pixels_final_ang = bent_pixels / final_ang;
+
+            // middle non-bend
+            {
+                int dst_x = dst_x_bend_start + 1;
+                int src_x = dst_x - dst_x_bend_start + src_half_width_minus_bend_x;
+                int length = dst_x_bend_end - (dst_x_bend_start + 1);
+
+                if (length > 0)
+                {
+                    for (int y = 0; y < src.src_h; y += 1)
+                    {
+                        // rectanliner 
+                        int src_row_start = (y * src.src_w) + src_x;
+                        int dst_row_start = (y * dst.src_w) + dst_x;
+
+                        Array.Copy(src.raw, src_row_start, dst.raw, dst_row_start, length);
+                    }
+                }
+            }
+
+            // left & right halves of bend block
+            {
+                for (int dst_x = 0; dst_x <= dst_x_bend_start; dst_x++)
+                {
+                    int pol_x = dst_x - dst_x_bend_start;
+
+                    for (int dst_y = 0; dst_y < dst_origin_y; dst_y += 1)
+                    {
+                        // map from output to input
+                        int pol_y = dst_y;
+
+                        int rad_y = (int)mc.Length(-pol_x, pol_y);
+                        int src_y = src.src_h - rad_y - 1;
+
+                        if (src_y >= 0)
+                        {
+                            float mod_ang = mc.Angle(-pol_x, pol_y);
+                            float tmod_ang = MathCache.F_PI - mod_ang;
+
+                            if (mod_ang <= final_ang)
+                            {
+                                int rad_x = (int)(-mod_ang * bent_pixels_final_ang) + src_half_width_minus_bend_x;
+                                if (rad_x < src.src_w && rad_x >= 0)
+                                {
+                                    int src_x = rad_x;
+                                    
+                                    int c = src.getPixelArgb(src_x, src_y);
+                                    dst.setPixelArgb(dst_x, dst_origin_y - dst_y, c);
+                                }
+
+                                int rad_x2 = (int)(mod_ang * bent_pixels_final_ang) + src_half_width_plus_bend_x;
+                                if (rad_x2 < src.src_w && rad_x2 >= 0)
+                                {
+                                    int src_x = rad_x2;
+                                    int d2x = dst_x_bend_end + (dst_x_bend_start - dst_x); 
+                                    int c = src.getPixelArgb(src_x, src_y);
+                                    dst.setPixelArgb(d2x, dst_origin_y - dst_y, c);
+                                }
+                            }
+
+                            if (tmod_ang <= final_ang)
+                            {
+                                int rad_x = (int)(-tmod_ang * bent_pixels_final_ang) + src_half_width_minus_bend_x;
+
+                                if (rad_x < src.src_w && rad_x >= 0)
+                                {
+                                    int src_x = rad_x;
+                                    int c = src.getPixelArgb(src_x, src_y);
+                                    dst.setPixelArgb(dst_x, dst_y + dst_origin_y, c);
+                                }
+
+                                int rad_x2 = (int)(tmod_ang * bent_pixels_final_ang) + src_half_width_plus_bend_x;
+                                if (rad_x2 < src.src_w && rad_x2 >= 0)
+                                {
+                                    int src_x = rad_x2;
+                                    int d2x = dst_x_bend_end + (dst_x_bend_start - dst_x);
+                                    int c = src.getPixelArgb(src_x, src_y);
+                                    dst.setPixelArgb(d2x, dst_y + dst_origin_y, c);
+                                }
+                            }
                         }
                     }
                 }
