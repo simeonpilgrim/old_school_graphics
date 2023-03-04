@@ -61,7 +61,7 @@ namespace TinyPlanet
             var mc = new MathCache(raw.src_h + 1, out_w + 1);
             Log($"MathCache {sw.ElapsedMilliseconds} ms");
 
-            GifBuilder(raw, @"C:\temp\tinyplanet-out_J.gif", 20, Bend_J, mc);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_K.gif", 20, Bend_K, mc);
         }
 
         static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, MathCache, Raw> bender, MathCache mc)
@@ -632,6 +632,105 @@ namespace TinyPlanet
                             {
                                 dst.setPixelArgb(dst_x, dst_y, src.getPixelArgb(dev_x, src.src_h - dev_y - 1));
                             }
+                        }
+                    }
+                }
+            }
+
+            return dst;
+        }
+
+        static Raw Bend_K(Raw src, int bend_i, int total, MathCache mc)
+        {
+            int src_width = src.src_w;
+            int src_height = src.src_h;
+            int src_half_width = src_width / 2;
+            int dst_width = (src_height * 2) + src_half_width;
+            int dst_height = src_height * 2;
+            int dst_origin_x = dst_width / 2;
+            int dst_origin_y = dst_height / 2;
+
+            float bend = bend_i / ((float)total); // turn to percentage;
+
+            int bend_x = (int)(src_half_width * (1.0 - bend));
+            float bent_pixels = src_half_width - bend_x;
+            float final_ang_d = 180.0f * bend;
+            float final_ang = final_ang_d * MathCache.F_PI180;
+
+            var dst = new Raw(dst_height, dst_width);
+            dst.setAllArgb(Color.White.ToArgb());
+
+            int dst_x_bend_start = dst_origin_x - bend_x;
+            int dst_x_bend_end = dst_origin_x + bend_x;
+
+            // left of bend block
+            for (int dst_x = 0; dst_x <= dst_x_bend_start; dst_x++)
+            {
+                for (int dst_y = 0; dst_y < dst_height; dst_y += 1)
+                {
+                    // map from output to input
+                    int pol_x = dst_x - dst_x_bend_start;
+                    int pol_y = dst_y - dst_origin_y;
+
+                    var bfix = pol_y < 0;
+
+                    float mod_ang = mc.Angle(Math.Abs(pol_x), Math.Abs(pol_y));
+                    var tmod_ang = MathCache.F_PI - (bfix ? (MathCache.F_PI - mod_ang) : mod_ang);
+
+                    if (tmod_ang <= final_ang)
+                    {
+                        int rad_x = (int)(-tmod_ang * bent_pixels / final_ang) - bend_x + src_half_width;
+                        int rad_y = (int)mc.Length(Math.Abs(pol_x), Math.Abs(pol_y));
+
+                        if (rad_x < src.src_w && rad_x >= 0 &&
+                            rad_y < src.src_h)
+                        {
+                            int src_x = rad_x;
+                            int src_y = src.src_h - rad_y - 1;
+                            dst.setPixelArgb(dst_x, dst_y, src.getPixelArgb(src_x, src_y));
+                        }
+                    }
+                }
+            }
+
+            // middle non-bend
+            for (int dst_x = dst_x_bend_start + 1; dst_x < dst_x_bend_end; dst_x += 1)
+            {
+                for (int dst_y = 0; dst_y < src.src_h; dst_y += 1)
+                {
+                    // rectanliner 
+                    int src_x = (dst_x - dst_x_bend_start) + (src_half_width - bend_x);
+                    int src_y = dst_y;
+
+                    dst.setPixelArgb(dst_x, dst_y, src.getPixelArgb(src_x, src_y));
+                }
+            }
+
+            // right of bend
+            for (int dst_x = dst_x_bend_end; dst_x < dst_width; dst_x += 1)
+            {
+                for (int dst_y = 0; dst_y < dst_height; dst_y += 1)
+                {
+                    // map from output to input
+                    int pol_x = dst_x - dst_x_bend_end;
+                    int pol_y = dst_y - dst_origin_y;
+
+                    var bfix = pol_y < 0;
+
+                    float mod_ang = mc.Angle(Math.Abs(pol_x), Math.Abs(pol_y));
+                    var tmod_ang = MathCache.F_PI - (bfix ? (MathCache.F_PI - mod_ang) : mod_ang);
+
+                    if (tmod_ang <= final_ang)
+                    {
+                        int rad_x = (int)(tmod_ang * bent_pixels / final_ang) + bend_x + src_half_width;
+                        int rad_y = (int)mc.Length(Math.Abs(pol_x), Math.Abs(pol_y));
+
+                        if (rad_x < src.src_w && rad_x >= 0 &&
+                            rad_y < src.src_h)
+                        {
+                            int src_x = rad_x;
+                            int src_y = src.src_h - rad_y - 1;
+                            dst.setPixelArgb(dst_x, dst_y, src.getPixelArgb(src_x, src_y));
                         }
                     }
                 }
