@@ -694,15 +694,21 @@ namespace TinyPlanet
             }
 
             // middle non-bend
-            for (int dst_x = dst_x_bend_start + 1; dst_x < dst_x_bend_end; dst_x += 1)
             {
-                for (int dst_y = 0; dst_y < src.src_h; dst_y += 1)
-                {
-                    // rectanliner 
-                    int src_x = (dst_x - dst_x_bend_start) + (src_half_width - bend_x);
-                    int src_y = dst_y;
+                int dst_x = dst_x_bend_start + 1;
+                int src_x = (dst_x - dst_x_bend_start) + (src_half_width - bend_x);
+                int length = dst_x_bend_end - (dst_x_bend_start + 1);
 
-                    dst.setPixelArgb(dst_x, dst_y, src.getPixelArgb(src_x, src_y));
+                if (length > 0)
+                {
+                    for (int y = 0; y < src.src_h; y += 1)
+                    {
+                        // rectanliner 
+                        int src_row_start = (y * src.src_w) + src_x;
+                        int dst_row_start = (y * dst.src_w) + dst_x;
+         
+                        Array.Copy(src.raw, src_row_start, dst.raw, dst_row_start, length);
+                    }
                 }
             }
 

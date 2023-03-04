@@ -21,22 +21,23 @@ namespace TinyPlanet
         {
 #if DEBUG
             Height = h;
-#endif
+#endif 
             Width = w;
             _Angle = new float[h * w];
             _Length = new float[h * w];
 
-
             for (int y = 0; y < h; y++)
             {
                 int row = y * w;
+                int square_y = y * y;
 
                 _Length[0 + row] = y;
                 _Angle[0 + row] = 0;
 
                 for (int x = 1; x < w; x++)
                 {
-                    float r = (float)Math.Sqrt((x * x) + (y * y));
+                    int square_x = x * x;
+                    float r = (float)Math.Sqrt(square_x + square_y);
                     float q = (float)Math.Atan2(y, x);
 
                     // angle from X to angle from Y
