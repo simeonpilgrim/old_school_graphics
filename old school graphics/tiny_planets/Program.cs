@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
 using System.IO;
-using System.Drawing.Imaging;
 
 namespace TinyPlanet
 {
@@ -14,68 +13,6 @@ namespace TinyPlanet
             Debug.WriteLine(msg);
             Console.WriteLine(msg);
         }
-
-        class Raw
-        {
-            public int src_h;
-            public int src_w;
-            public int[] raw;
-
-            public Raw(int height, int width)
-            {
-                raw = new int[width * height];
-                src_w = width;
-                src_h = height;
-            }
-            public void setAllArgb(int c) { for (int i = 0; i < raw.Length; i++) raw[i] = c; }
-            public void setPixelArgb(int x, int y, int c) { raw[(y * src_w) + x] = c; }
-            public int getPixelArgb(int x, int y) { return raw[(y * src_w) + x]; }
-
-            public static Raw toRaw(string f)
-            {
-                using (Bitmap src = new Bitmap(f))
-                {
-                    var raw = new Raw(src.Height, src.Width);
-
-                    for (int y = 0; y < raw.src_h; y++)
-                    {
-                        for (int x = 0; x < raw.src_w; x++)
-                        {
-                            raw.setPixelArgb(x, y, src.GetPixel(x, y).ToArgb());
-                        }
-                    }
-                    return raw;
-                }
-            }
-
-            public Bitmap toBitmap()
-            {
-                // faster now..
-                Bitmap image = new Bitmap(src_w, src_h, PixelFormat.Format32bppArgb);
-                
-                BitmapData bmpData = image.LockBits(new Rectangle(0, 0, src_w, src_h), ImageLockMode.WriteOnly, image.PixelFormat);
-  
-                IntPtr ptr = bmpData.Scan0;
-                
-                // Copy the RGB values back to the bitmap
-                System.Runtime.InteropServices.Marshal.Copy(raw, 0, ptr, raw.Length);
-
-                // Unlock the bits.
-                image.UnlockBits(bmpData);
-
-                return image;
-            }
-
-            public void SaveBitmap(string fileName)
-            {
-                using (var bmp = toBitmap())
-                {
-                    bmp.Save(fileName);
-                }
-            }
-        }
-
-  
 
         static void OriginalBlogPostSteps()
         {
@@ -625,70 +562,6 @@ namespace TinyPlanet
             }
 
             return bkGround; 
-        }
-
-        public class MathCache
-        {
-#if DEBUG
-            readonly int Height;
-#endif
-            readonly int Width;
-            readonly float[] _Angle;
-            readonly float[] _Length;
-
-            public const float F_PI = (float)Math.PI;
-            public const float F_2PI = F_PI * 2.0f;
-            public const float F_PI2 = F_PI / 2.0f;
-            public const float F_PI180 = F_PI / 180.0f;
-
-
-            public MathCache(int h, int w)
-            {
-#if DEBUG
-                Height = h;
-#endif
-                Width = w;
-                _Angle = new float[h * w];
-                _Length = new float[h * w];
-
-
-                for (int y = 0; y < h; y++)
-                {
-                    int row = y * w;
-
-                    _Length[0 + row] = y;
-                    _Angle[0 + row] = 0;
-
-                    for (int x = 1; x < w; x++)
-                    {
-                        float r = (float)Math.Sqrt((x * x) + (y * y));
-                        float q = (float)Math.Atan2(y, x);
-
-                        // angle from X to angle from Y
-                        float pic_ang = F_PI2 - q;
-
-                        _Length[x + row] = r;
-                        _Angle[x + row] = pic_ang; // mod_ang;
-                    }
-                }
-            }
-
-            public float Length(int x, int y)
-            {
-#if DEBUG
-                if(x >= Width || y >= Height) throw new ArgumentOutOfRangeException();
-#endif
-                return _Length[(y * Width) + x];
-            }
-
-            public float Angle(int x, int y)
-            {
-#if DEBUG
-                if(x >= Width || y >= Height) throw new ArgumentOutOfRangeException();
-#endif
-
-                return _Angle[(y * Width) + x];
-            }
         }
 
         static Raw Bend_J(Raw src, int bend_i, int total, MathCache mc)
