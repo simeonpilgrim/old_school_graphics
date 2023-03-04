@@ -26,16 +26,53 @@ namespace TinyPlanet
             {
                 var raw = new Raw(src.Height, src.Width);
 
-                //BitmapData bmpData = src.LockBits(new Rectangle(0, 0, src.Height, src.Width), ImageLockMode.ReadOnly, src.PixelFormat);
-                //IntPtr ptr = bmpData.Scan0;
+                Rectangle rect = new Rectangle(0, 0, src.Width, src.Height);
+                System.Drawing.Imaging.BitmapData bmpData =
+                    src.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, src.PixelFormat);
 
-                for (int y = 0; y < raw.src_h; y++)
+                IntPtr ptr = bmpData.Scan0;
+
+                int bytes = Math.Abs(bmpData.Stride) * src.Height;
+                byte[] rgbValues = new byte[bytes];
+
+                // Copy the RGB values into the array.
+                System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
+
+                // Unlock the bits.
+                src.UnlockBits(bmpData);
+
+                if (bmpData.PixelFormat == PixelFormat.Format24bppRgb)
                 {
-                    for (int x = 0; x < raw.src_w; x++)
+                    int row_idx = 0;
+                    for (int y = 0; y < raw.src_h; y++)
                     {
-                        raw.setPixelArgb(x, y, src.GetPixel(x, y).ToArgb());
+                        for (int x = 0; x < raw.src_w; x++)
+                        {
+                            int idx = x * 3;
+
+                            int a = 0xff;
+                            int b = rgbValues[row_idx + idx + 0];
+                            int g = rgbValues[row_idx + idx + 1];
+                            int r = rgbValues[row_idx + idx + 2];
+
+                            int c = (a << 24) + (r << 16) + (g << 8) + (b);
+
+                            raw.setPixelArgb(x, y, c);
+                        }
+                        row_idx += Math.Abs(bmpData.Stride);
+                    }
+                } else
+                {
+                    Program.Log($"bmpData.PixelFormat {bmpData.PixelFormat} Not supported in fast path yet");
+                    for (int y = 0; y < raw.src_h; y++)
+                    {
+                        for (int x = 0; x < raw.src_w; x++)
+                        {
+                            raw.setPixelArgb(x, y, src.GetPixel(x, y).ToArgb());
+                        }
                     }
                 }
+
                 return raw;
             }
         }
