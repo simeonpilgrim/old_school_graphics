@@ -2,7 +2,6 @@ using System;
 using System.Drawing;
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
-using System.Windows;
 using System.IO;
 using System.Drawing.Imaging;
 
@@ -47,7 +46,6 @@ namespace TinyPlanet
                     }
                     return raw;
                 }
-
             }
 
             public Bitmap toBitmap()
@@ -81,67 +79,80 @@ namespace TinyPlanet
 
         static void OriginalBlogPostSteps()
         {
+            //var raw = Raw.toRaw(@"C:\temp\tinyplanet-1_small.jpg");
             var raw = Raw.toRaw(@"C:\temp\tinyplanet-1.jpg");
 
-            GifBuilder(raw, @"C:\temp\tinyplanet-out_A.gif", 100, Bend_A);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_A.gif", 100, Bend_A, null);
 
-            Bend_A(raw, 100, 100)
+            Bend_A(raw, 100, 100, null)
                 .SaveBitmap(@"C:\temp\tinyplanet-out_A.png");
           
-            Bend_C(raw, 100, 100)
+            Bend_C(raw, 0, 0, null)
                 .SaveBitmap(@"C:\temp\tinyplanet-out_C.png");
 
-            GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D, null);
 
-            Bend_D(raw, 60, 100)
+            Bend_D(raw, 60, 100, null)
                 .SaveBitmap(@"C:\temp\tinyplanet-out_D.png");
 
-            Bend_E(raw, 60, 100)
+            Bend_E(raw, 60, 100, null)
                 .SaveBitmap(@"C:\temp\tinyplanet-out_E.png");
 
-            Bend_F(raw, 60, 100)
+            Bend_F(raw, 60, 100, null)
                 .SaveBitmap(@"C:\temp\tinyplanet-out_F.png");
 
-            Bend_G(raw, 60, 100)
+            Bend_G(raw, 60, 100, null)
                 .SaveBitmap(@"C:\temp\tinyplanet-out_G.png");
             
-            Bend_H(raw, 60, 100)
+            Bend_H(raw, 60, 100, null)
                 .SaveBitmap(@"C:\temp\tinyplanet-out_H.png");
 
-            GifBuilder(raw, @"C:\temp\tinyplanet-out_H.gif", 100, Bend_H);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_H.gif", 100, Bend_H, null);
         }
 
         static void Main(string[] args)
         {
-            OriginalBlogPostSteps();
+            //OriginalBlogPostSteps();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
 
-            //var raw = Raw.toRaw(@"C:\temp\tinyplanet-1.jpg");
+            var raw = Raw.toRaw(@"C:\temp\tinyplanet-1_small.jpg");
+            Log($"load raw {sw.ElapsedMilliseconds} ms");
+            sw.Restart();
 
-            //GifBuilder(raw, @"C:\temp\tinyplanet-out_D.gif", 100, Bend_D);
+            int out_w = ((raw.src_h * 2) + (raw.src_w/2) )/2;
+            var mc = new MathCache(raw.src_h + 1, out_w + 1);
+            Log($"MathCache {sw.ElapsedMilliseconds} ms");
+
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_J.gif", 20, Bend_J, mc);
         }
 
-        static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, Raw> bender)
+        static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, MathCache, Raw> bender, MathCache mc)
         {
             GifBitmapEncoder gEnc = new GifBitmapEncoder();
             System.Windows.Media.PixelFormat pf = System.Windows.Media.PixelFormats.Pbgra32;
 
-
+            Stopwatch sw = new Stopwatch();
             for (int i = 0; i <= steps; i++)
             {
-                var dst = bender(src, i, steps);
-                Log(string.Format("frame {0}", i));
+                sw.Restart();
+
+                var dst = bender(src, i, steps, mc);
+                Log($"frame {i} {sw.ElapsedMilliseconds} ms");
+
                 int rawStride = (dst.src_w * pf.BitsPerPixel + 7) / 8;
 
                 BitmapSource bitmap = BitmapSource.Create(dst.src_w, dst.src_h, 96, 96, pf, null, dst.raw, rawStride);
                 var bf = BitmapFrame.Create(bitmap);
 
                 gEnc.Frames.Add(bf);
+                //dst.SaveBitmap($@"C:\temp\tinyplanet-out_J{i}.png");
             }
 
             gEnc.Save(new FileStream(outfileName, FileMode.Create));  
         }
 
-        static Raw Bend_A(Raw src, int bend_i, int total)
+        static Raw Bend_A(Raw src, int bend_i, int total, MathCache mc)
         {
             int src_half_width = src.src_w / 2;
             int dst_width = (src.src_h * 2) + src.src_w;
@@ -196,7 +207,7 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Raw Bend_C(Raw src, int bend_i, int total)
+        static Raw Bend_C(Raw src, int bend_i, int total, MathCache mc)
         {
             int src_half_width = src.src_w / 2;
             int dst_width = (src.src_h * 2) + src.src_w;
@@ -237,7 +248,7 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Raw Bend_D(Raw src, int bend_i, int total)
+        static Raw Bend_D(Raw src, int bend_i, int total, MathCache mc)
         {
             int src_width = src.src_w;
             int src_height = src.src_h;
@@ -307,7 +318,7 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Raw Bend_E(Raw src, int bend_i, int total)
+        static Raw Bend_E(Raw src, int bend_i, int total, MathCache mc)
         {
             int src_half_width = src.src_w / 2;
             int dst_width = (src.src_h * 2) + src.src_w;
@@ -360,7 +371,7 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Raw Bend_F(Raw src, int bend_i, int total)
+        static Raw Bend_F(Raw src, int bend_i, int total, MathCache mc)
         {
             int src_half_width = src.src_w / 2;
             int dst_width = (src.src_h * 2) + src.src_w;
@@ -422,7 +433,7 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Raw Bend_G(Raw src, int bend_i, int total)
+        static Raw Bend_G(Raw src, int bend_i, int total, MathCache mc)
         {
             int src_half_width = src.src_w / 2;
             int dst_width = (src.src_h * 2) + src.src_w;
@@ -492,7 +503,7 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Raw Bend_H(Raw src, int bend_i, int total)
+        static Raw Bend_H(Raw src, int bend_i, int total, MathCache mc)
         {
             int src_half_width = src.src_w / 2;
             int dst_width = (src.src_h * 2) + src.src_w;
@@ -614,6 +625,146 @@ namespace TinyPlanet
             }
 
             return bkGround; 
+        }
+
+        public class MathCache
+        {
+#if DEBUG
+            readonly int Height;
+#endif
+            readonly int Width;
+            readonly float[] _Angle;
+            readonly float[] _Length;
+
+            public const float F_PI = (float)Math.PI;
+            public const float F_2PI = F_PI * 2.0f;
+            public const float F_PI2 = F_PI / 2.0f;
+            public const float F_PI180 = F_PI / 180.0f;
+
+
+            public MathCache(int h, int w)
+            {
+#if DEBUG
+                Height = h;
+#endif
+                Width = w;
+                _Angle = new float[h * w];
+                _Length = new float[h * w];
+
+
+                for (int y = 0; y < h; y++)
+                {
+                    int row = y * w;
+
+                    _Length[0 + row] = y;
+                    _Angle[0 + row] = 0;
+
+                    for (int x = 1; x < w; x++)
+                    {
+                        float r = (float)Math.Sqrt((x * x) + (y * y));
+                        float q = (float)Math.Atan2(y, x);
+
+                        // angle from X to angle from Y
+                        float pic_ang = F_PI2 - q;
+
+                        _Length[x + row] = r;
+                        _Angle[x + row] = pic_ang; // mod_ang;
+                    }
+                }
+            }
+
+            public float Length(int x, int y)
+            {
+#if DEBUG
+                if(x >= Width || y >= Height) throw new ArgumentOutOfRangeException();
+#endif
+                return _Length[(y * Width) + x];
+            }
+
+            public float Angle(int x, int y)
+            {
+#if DEBUG
+                if(x >= Width || y >= Height) throw new ArgumentOutOfRangeException();
+#endif
+
+                return _Angle[(y * Width) + x];
+            }
+        }
+
+        static Raw Bend_J(Raw src, int bend_i, int total, MathCache mc)
+        {
+            int src_width = src.src_w;
+            int src_height = src.src_h;
+            int src_half_width = src_width / 2;
+            int dst_width = (src_height * 2) + src_half_width;
+            int dst_height = src_height * 2;
+            int dst_origin_x = dst_width / 2;
+            int dst_origin_y = dst_height / 2;
+
+            float bend = bend_i / ((float)total); // turn to percentage;
+
+
+            int bend_x = (int)(src_half_width * (1.0 - bend));
+            float bent_pixels = src_half_width - bend_x;
+            float final_ang_d = 180.0f * bend;
+            float final_ang = final_ang_d * MathCache.F_PI180;
+
+            var dst = new Raw(dst_height, dst_width);
+            dst.setAllArgb(Color.White.ToArgb());
+
+            int dst_x_bend_start = dst_origin_x - bend_x;
+            int dst_x_bend_end = dst_origin_x + bend_x;
+
+            for (int dst_x = 0; dst_x < dst_width; dst_x += 1)
+            {
+                int fix_x = (dst_x < dst_origin_x ? bend_x : -bend_x);
+                for (int dst_y = 0; dst_y < dst_height; dst_y += 1)
+                {
+                    if (dst_x > dst_x_bend_start &&
+                        dst_x < dst_x_bend_end)
+                    {
+                        // rectanliner 
+                        int src_x = (dst_x - dst_x_bend_start) + (src_half_width - bend_x);
+                        int src_y = dst_y;
+
+                        if (src_y < src.src_h)
+                        {
+                            dst.setPixelArgb(dst_x, dst_y, src.getPixelArgb(src_x, src_y));
+                        }
+                    } else
+                    {
+                        // map from output to input
+                        int dx = dst_x - dst_origin_x + fix_x;
+                        int dy = dst_y - dst_origin_y;
+
+                        var afix = dx < 0;
+                        var bfix = dy < 0;
+
+                        float mod_ang = mc.Angle(Math.Abs(dx), Math.Abs(dy));
+                        //var fmod_ang = MathCache.F_PI2 - (mod_ang - MathCache.F_PI2);
+                        var tmod_ang = MathCache.F_PI - (bfix ? (MathCache.F_PI - mod_ang) : mod_ang);
+
+                        var smod_ang = afix ? -tmod_ang : tmod_ang;
+
+                        if (tmod_ang <= final_ang)
+                        {
+                            float r = mc.Length(Math.Abs(dx), Math.Abs(dy));
+                            float percent = smod_ang / final_ang;
+
+                            int dev_x = (int)(percent * bent_pixels) - fix_x + src_half_width;
+                            int dev_y = (int)r;
+
+                            if (dev_x < src.src_w && dev_x >= 0 &&
+                                dev_y < src.src_h)
+                            {
+                                dst.setPixelArgb(dst_x, dst_y, src.getPixelArgb(dev_x, src.src_h - dev_y - 1));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return dst;
         }
     }
 }
