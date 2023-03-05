@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{885C0C98-D1C0-4885-951D-EA4815FF91EC}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>tiny_planets</RootNamespace>
+    <RootNamespace>TinyPlanet</RootNamespace>
     <AssemblyName>tiny_planets</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MathCache.cs" />
+    <Compile Include="OriginalBlogPost.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Raw.cs" />
