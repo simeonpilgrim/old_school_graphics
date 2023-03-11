@@ -16,6 +16,17 @@ namespace TinyPlanet
             src_w = width;
             src_h = height;
         }
+
+        public Raw(Raw src)
+        {
+            int l = src.src_w * src.src_h;
+            raw = new int[l];
+            Array.Copy(src.raw, raw, l);
+
+            src_w = src.src_w;
+            src_h = src.src_h;
+        }
+
         public void setAllArgb(int c) { for (int i = 0; i < raw.Length; i++) raw[i] = c; }
         public void setPixelArgb(int x, int y, int c) { raw[(y * src_w) + x] = c; }
         public int getPixelArgb(int x, int y) { return raw[(y * src_w) + x]; }

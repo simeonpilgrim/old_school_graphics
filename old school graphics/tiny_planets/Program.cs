@@ -4,8 +4,6 @@
 using System;
 using System.Drawing;
 using System.Diagnostics;
-using System.Windows.Media.Imaging;
-using System.IO;
 
 namespace TinyPlanet
 {
@@ -26,28 +24,31 @@ namespace TinyPlanet
 
             var raw = Raw.toRaw(@"C:\temp\tinyplanet-1_small.jpg");
             Log($"load raw {sw.ElapsedMilliseconds} ms");
-            sw.Restart();
 
-            int out_w = ((raw.src_h * 2) + (raw.src_w/2) )/2;
-            var mc = new MathCache(raw.src_h + 1, out_w + 1);
+            var trans = new Transforms(raw.src_h, raw.src_w);
+
+            sw.Restart();
+            var mc = new MathCache(trans.dst_max_origin_y + 1, trans.dst_max_origin_x + 1);
             Log($"MathCache {sw.ElapsedMilliseconds} ms");
 
-            GifBuilder(raw, @"C:\temp\tinyplanet-out_L.gif", 20, Bend_L, mc);
+            GifBuilder(raw, @"C:\temp\tinyplanet-out_L.gif", 10, Bend_L, mc, trans);
         }
 
-        static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, MathCache, Raw> bender, MathCache mc)
+        static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, MathCache, Raw, Transforms, Raw> bender, MathCache mc, Transforms trans)
         {
 #if SAVE_GIF
             var gEnc = new System.Windows.Media.Imaging.GifBitmapEncoder();
             var pf = System.Windows.Media.PixelFormats.Pbgra32;
 #endif
+            var blank = new Raw(trans.dst_height, trans.dst_width);
+            blank.setAllArgb(Color.White.ToArgb());
 
             Stopwatch sw = new Stopwatch();
             for (int i = 0; i <= steps; i++)
             {
                 sw.Restart();
 
-                var dst = bender(src, i, steps, mc);
+                var dst = bender(src, i, steps, mc, blank, trans);
                 Log($"frame {i} {sw.ElapsedMilliseconds} ms");
 #if SAVE_GIF
                 int rawStride = (dst.src_w * pf.BitsPerPixel + 7) / 8;
@@ -67,7 +68,7 @@ namespace TinyPlanet
         }
 
    
-        static Raw Bend_J(Raw src, int bend_i, int total, MathCache mc)
+        static Raw Bend_J(Raw src, int bend_i, int total, MathCache mc, Raw blank, Transforms trans)
         {
             int src_width = src.src_w;
             int src_height = src.src_h;
@@ -84,8 +85,7 @@ namespace TinyPlanet
             float final_ang_d = 180.0f * bend;
             float final_ang = final_ang_d * MathCache.F_PI180;
 
-            var dst = new Raw(dst_height, dst_width);
-            dst.setAllArgb(Color.White.ToArgb());
+            var dst = new Raw(blank);
 
             int dst_x_bend_start = dst_origin_x - bend_x;
             int dst_x_bend_end = dst_origin_x + bend_x;
@@ -142,7 +142,7 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Raw Bend_K(Raw src, int bend_i, int total, MathCache mc)
+        static Raw Bend_K(Raw src, int bend_i, int total, MathCache mc, Raw blank, Transforms trans)
         {
             int src_width = src.src_w;
             int src_height = src.src_h;
@@ -159,8 +159,7 @@ namespace TinyPlanet
             float final_ang_d = 180.0f * bend;
             float final_ang = final_ang_d * MathCache.F_PI180;
 
-            var dst = new Raw(dst_height, dst_width);
-            dst.setAllArgb(Color.White.ToArgb());
+            var dst = new Raw(blank);
 
             int dst_x_bend_start = dst_origin_x - bend_x;
             int dst_x_bend_end = dst_origin_x + bend_x;
@@ -247,28 +246,22 @@ namespace TinyPlanet
             return dst;
         }
 
-        static Raw Bend_L(Raw src, int bend_i, int total, MathCache mc)
+        static Raw Bend_L(Raw src, int bend_i, int total, MathCache mc, Raw blank, Transforms trans)
         {
-            int src_half_width = src.src_w / 2;
-            int dst_width = (src.src_h * 2) + src_half_width;
-            int dst_height = src.src_h * 2;
-            int dst_origin_x = dst_width / 2;
-            int dst_origin_y = dst_height / 2;
+            var dst = new Raw(blank);
+
 
             float bend = bend_i / ((float)total); // turn to percentage;
 
-            int bend_x = (int)(src_half_width * (1.0 - bend));
-            float bent_pixels = src_half_width - bend_x;
+            int bend_x = (int)(trans.src_origin_x * (1.0 - bend));
+            float bent_pixels = trans.src_origin_x - bend_x;
             float final_ang = bend * MathCache.F_PI;
 
-            var dst = new Raw(dst_height, dst_width);
-            //dst.setAllArgb(Color.White.ToArgb());
+            int dst_x_bend_start = trans.dst_origin_x - bend_x;
+            int dst_x_bend_end = trans.dst_origin_x + bend_x;
 
-            int dst_x_bend_start = dst_origin_x - bend_x;
-            int dst_x_bend_end = dst_origin_x + bend_x;
-
-            int src_half_width_minus_bend_x = src_half_width - bend_x;
-            int src_half_width_plus_bend_x = src_half_width + bend_x;
+            int src_half_width_minus_bend_x = trans.src_origin_x - bend_x;
+            int src_half_width_plus_bend_x = trans.src_origin_x + bend_x;
             float bent_pixels_final_ang = bent_pixels / final_ang;
 
             // middle non-bend
@@ -296,7 +289,7 @@ namespace TinyPlanet
                 {
                     int pol_x = dst_x - dst_x_bend_start;
 
-                    for (int dst_y = 0; dst_y < dst_origin_y; dst_y += 1)
+                    for (int dst_y = 0; dst_y < trans.dst_origin_y; dst_y += 1)
                     {
                         // map from output to input
                         int pol_y = dst_y;
@@ -317,7 +310,7 @@ namespace TinyPlanet
                                     int src_x = rad_x;
                                     
                                     int c = src.getPixelArgb(src_x, src_y);
-                                    dst.setPixelArgb(dst_x, dst_origin_y - dst_y, c);
+                                    dst.setPixelArgb(dst_x, trans.dst_origin_y - dst_y, c);
                                 }
 
                                 int rad_x2 = (int)(mod_ang * bent_pixels_final_ang) + src_half_width_plus_bend_x;
@@ -326,7 +319,7 @@ namespace TinyPlanet
                                     int src_x = rad_x2;
                                     int d2x = dst_x_bend_end + (dst_x_bend_start - dst_x); 
                                     int c = src.getPixelArgb(src_x, src_y);
-                                    dst.setPixelArgb(d2x, dst_origin_y - dst_y, c);
+                                    dst.setPixelArgb(d2x, trans.dst_origin_y - dst_y, c);
                                 }
                             }
 
@@ -338,7 +331,7 @@ namespace TinyPlanet
                                 {
                                     int src_x = rad_x;
                                     int c = src.getPixelArgb(src_x, src_y);
-                                    dst.setPixelArgb(dst_x, dst_y + dst_origin_y, c);
+                                    dst.setPixelArgb(dst_x, dst_y + trans.dst_origin_y, c);
                                 }
 
                                 int rad_x2 = (int)(tmod_ang * bent_pixels_final_ang) + src_half_width_plus_bend_x;
@@ -347,7 +340,7 @@ namespace TinyPlanet
                                     int src_x = rad_x2;
                                     int d2x = dst_x_bend_end + (dst_x_bend_start - dst_x);
                                     int c = src.getPixelArgb(src_x, src_y);
-                                    dst.setPixelArgb(d2x, dst_y + dst_origin_y, c);
+                                    dst.setPixelArgb(d2x, dst_y + trans.dst_origin_y, c);
                                 }
                             }
                         }
