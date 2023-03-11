@@ -1,3 +1,6 @@
+//#define SAVE_GIF
+#define SAVE_JPG
+
 using System;
 using System.Drawing;
 using System.Diagnostics;
@@ -34,8 +37,10 @@ namespace TinyPlanet
 
         static void GifBuilder(Raw src, string outfileName, int steps, Func<Raw, int, int, MathCache, Raw> bender, MathCache mc)
         {
-            GifBitmapEncoder gEnc = new GifBitmapEncoder();
-            System.Windows.Media.PixelFormat pf = System.Windows.Media.PixelFormats.Pbgra32;
+#if SAVE_GIF
+            var gEnc = new System.Windows.Media.Imaging.GifBitmapEncoder();
+            var pf = System.Windows.Media.PixelFormats.Pbgra32;
+#endif
 
             Stopwatch sw = new Stopwatch();
             for (int i = 0; i <= steps; i++)
@@ -44,17 +49,21 @@ namespace TinyPlanet
 
                 var dst = bender(src, i, steps, mc);
                 Log($"frame {i} {sw.ElapsedMilliseconds} ms");
-
+#if SAVE_GIF
                 int rawStride = (dst.src_w * pf.BitsPerPixel + 7) / 8;
 
-                BitmapSource bitmap = BitmapSource.Create(dst.src_w, dst.src_h, 96, 96, pf, null, dst.raw, rawStride);
-                var bf = BitmapFrame.Create(bitmap);
+                var bitmap = System.Windows.Media.Imaging.BitmapSource.Create(dst.src_w, dst.src_h, 96, 96, pf, null, dst.raw, rawStride);
+                var bf = System.Windows.Media.Imaging.BitmapFrame.Create(bitmap);
 
                 gEnc.Frames.Add(bf);
-                //dst.SaveBitmap($@"C:\temp\tinyplanet-out_J{i}.png");
+#endif
+#if SAVE_JPG
+                dst.SaveBitmap($@"C:\temp\tinyplanet-out_L{i}.jpg");
+#endif
             }
-
-            gEnc.Save(new FileStream(outfileName, FileMode.Create));  
+#if SAVE_GIF
+            gEnc.Save(new System.IO.FileStream(outfileName, System.IO.FileMode.Create));
+#endif
         }
 
    
