@@ -125,11 +125,13 @@ namespace TinyLive
         internal void BendMore()
         {
             bend_i = Math.Min(bend_i + 1, bend_t);
+            calcDestination();
         }
 
         internal void BendLess()
         {
             bend_i = Math.Max(bend_i - 1, 0);
+            calcDestination();
         }
 
         internal void Resize(int width, int height)
@@ -142,7 +144,6 @@ namespace TinyLive
             dst_width = width;
 
             calcDestination();
-            //throw new NotImplementedException();
         }
     }
 }

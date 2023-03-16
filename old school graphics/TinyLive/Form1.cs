@@ -1,7 +1,5 @@
 ﻿using ShareLib;
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 namespace TinyLive
@@ -12,14 +10,15 @@ namespace TinyLive
         {
             InitializeComponent();
 
-            raw = Raw.ToRaw(@"C:\temp\tinyplanet-1.jpg");
+            src = Raw.ToRaw(@"C:\temp\tinyplanet-1.jpg");
 
-            trans = new Transforms(raw.src_h, raw.src_w);
+            trans = new Transforms(src.src_h, src.src_w);
 
             WindowResized();
         }
 
-        Raw raw;
+        Raw src;
+        Raw dst;
         Transforms trans;
         MathCache mc;
 
@@ -58,9 +57,10 @@ namespace TinyLive
 
         void UpdatePicture()
         {
-            var data = Bender.Bend(raw, mc, trans);
-            this.pictureBox1.Image = data.ToBitmap();
-            this.Refresh();
+            dst = Bender.Bend(src, mc, trans);
+
+            pictureBox1.Image = dst.ToBitmap();
+            pictureBox1.Refresh();
         }
     }
 }
