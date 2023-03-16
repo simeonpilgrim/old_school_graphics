@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace TinyPlanet
+namespace ShareLib
 {
     public class Raw
     {
@@ -27,11 +27,11 @@ namespace TinyPlanet
             src_h = src.src_h;
         }
 
-        public void setAllArgb(int c) { for (int i = 0; i < raw.Length; i++) raw[i] = c; }
-        public void setPixelArgb(int x, int y, int c) { raw[(y * src_w) + x] = c; }
-        public int getPixelArgb(int x, int y) { return raw[(y * src_w) + x]; }
+        public void SetAllArgb(int c) { for (int i = 0; i < raw.Length; i++) raw[i] = c; }
+        public void SetPixelArgb(int x, int y, int c) { raw[(y * src_w) + x] = c; }
+        public int GetPixelArgb(int x, int y) { return raw[(y * src_w) + x]; }
 
-        public static Raw toRaw(string f)
+        public static Raw ToRaw(string f)
         {
             using (Bitmap src = new Bitmap(f))
             {
@@ -68,18 +68,18 @@ namespace TinyPlanet
 
                             int c = (a << 24) + (r << 16) + (g << 8) + (b);
 
-                            raw.setPixelArgb(x, y, c);
+                            raw.SetPixelArgb(x, y, c);
                         }
                         row_idx += Math.Abs(bmpData.Stride);
                     }
                 } else
                 {
-                    Program.Log($"bmpData.PixelFormat {bmpData.PixelFormat} Not supported in fast path yet");
+                    Logger.Log($"bmpData.PixelFormat {bmpData.PixelFormat} Not supported in fast path yet");
                     for (int y = 0; y < raw.src_h; y++)
                     {
                         for (int x = 0; x < raw.src_w; x++)
                         {
-                            raw.setPixelArgb(x, y, src.GetPixel(x, y).ToArgb());
+                            raw.SetPixelArgb(x, y, src.GetPixel(x, y).ToArgb());
                         }
                     }
                 }
@@ -88,7 +88,7 @@ namespace TinyPlanet
             }
         }
 
-        public Bitmap toBitmap()
+        public Bitmap ToBitmap()
         {
             // faster now..
             Bitmap image = new Bitmap(src_w, src_h, PixelFormat.Format32bppArgb);
@@ -108,7 +108,7 @@ namespace TinyPlanet
 
         public void SaveBitmap(string fileName)
         {
-            using (var bmp = toBitmap())
+            using (var bmp = ToBitmap())
             {
                 bmp.Save(fileName);
             }

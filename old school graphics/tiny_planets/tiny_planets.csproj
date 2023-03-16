@@ -90,7 +90,6 @@
     <Compile Include="OriginalBlogPost.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Raw.cs" />
     <Compile Include="Transforms.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -107,6 +106,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ShareLib\ShareLib.csproj">
+      <Project>{28bb7c84-ed73-4094-8c98-bed062dd84e4}</Project>
+      <Name>ShareLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

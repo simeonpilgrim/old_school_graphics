@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32929.386
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tiny_planets", "tiny_planets\tiny_planets.csproj", "{885C0C98-D1C0-4885-951D-EA4815FF91EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mandelbrot", "Mandelbrot\Mandelbrot.csproj", "{E20DA774-6D58-4324-AC41-A1580FE77725}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LineCurve", "LineCurve\LineCurve.csproj", "{944A6D50-683C-447B-A0D4-2C09EC11BD8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareLib", "ShareLib\ShareLib.csproj", "{28BB7C84-ED73-4094-8C98-BED062DD84E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{944A6D50-683C-447B-A0D4-2C09EC11BD8B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{944A6D50-683C-447B-A0D4-2C09EC11BD8B}.Release|x64.ActiveCfg = Release|Any CPU
 		{944A6D50-683C-447B-A0D4-2C09EC11BD8B}.Release|x64.Build.0 = Release|Any CPU
+		{28BB7C84-ED73-4094-8C98-BED062DD84E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28BB7C84-ED73-4094-8C98-BED062DD84E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28BB7C84-ED73-4094-8C98-BED062DD84E4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{28BB7C84-ED73-4094-8C98-BED062DD84E4}.Debug|x64.Build.0 = Debug|Any CPU
+		{28BB7C84-ED73-4094-8C98-BED062DD84E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28BB7C84-ED73-4094-8C98-BED062DD84E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28BB7C84-ED73-4094-8C98-BED062DD84E4}.Release|x64.ActiveCfg = Release|Any CPU
+		{28BB7C84-ED73-4094-8C98-BED062DD84E4}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
