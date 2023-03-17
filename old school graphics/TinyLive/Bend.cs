@@ -38,7 +38,7 @@ namespace TinyLive
                         // rectanliner 
                         int sx = (int)((x - trans.dst_origin_x) * scales);
                         float fy = ((y - trans.dst_origin_y) * trans.dst_scale) * trans.src_scale;
-                        int sy = (int)fy + trans.src_origin_y;
+                        int sy = (int)fy + trans.src_origin_y + trans.src_origin_y;
 
                         if (sx >= trans.src_from_x && sx < trans.src_to_x &&
                             sy >= trans.src_from_y && sy < trans.src_to_y)
