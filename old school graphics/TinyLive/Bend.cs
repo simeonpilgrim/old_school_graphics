@@ -24,24 +24,28 @@ namespace TinyLive
 
         public static Raw Bend(Raw src, MathCache mc, Transforms trans)
         {
+            float scales = trans.dst_scale * trans.src_scale;
+
             var dst = new Raw(trans.dst_height, trans.dst_width);
             dst.SetAllArgb(Color.White.ToArgb());
 
             // middle non-bend
             {
-                int dst_x = trans.dst_x_bend_start + 1;
-                int src_x = dst_x - trans.dst_x_bend_start + trans.src_half_width_minus_bend_x;
-                int length = trans.dst_x_bend_end - (trans.dst_x_bend_start + 1);
-
-                if (length > 0)
+                for (int y = 0; y < trans.dst_height; y += 1)
                 {
-                    for (int y = 0; y < src.src_h; y += 1)
+                    for (int x = trans.dst_x_bend_start + 1; x < trans.dst_x_bend_end; x += 1)
                     {
                         // rectanliner 
-                        //int src_row_start = (y * src.src_w) + src_x;
-                        //int dst_row_start = (y * dst.src_w) + dst_x;
+                        int sx = (int)((x - trans.dst_origin_x) * scales);
+                        float fy = ((y - trans.dst_origin_y) * trans.dst_scale) * trans.src_scale;
+                        int sy = (int)fy + trans.src_origin_y;
 
-                        //Array.Copy(src.raw, src_row_start, dst.raw, dst_row_start, length);
+                        if (sx >= trans.src_from_x && sx < trans.src_to_x &&
+                            sy >= trans.src_from_y && sy < trans.src_to_y)
+                        {
+                            int c = src.GetPixelArgb(sx, sy);
+                            dst.SetPixelArgb(x, y, c);
+                        }
                     }
                 }
             }
@@ -57,7 +61,7 @@ namespace TinyLive
                         // map from output to input
                         int pol_y = dst_y;
 
-                        int rad_y = (int)(mc.Length(-pol_x, pol_y) * trans.dst_scale * trans.src_scale);
+                        int rad_y = (int)(mc.Length(-pol_x, pol_y) * scales);
                         int src_y = src.src_h - rad_y - 1;
 
                         if (src_y >= trans.src_from_y && src_y < trans.src_to_y)

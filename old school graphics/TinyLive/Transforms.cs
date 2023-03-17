@@ -122,6 +122,19 @@ namespace TinyLive
             throw new NotImplementedException();
         }
 
+        internal void DstZoomIn()
+        {
+            dst_scale *= 1.25f;
+            calcDestination();
+        }
+
+        internal void DstZoomOut()
+        {
+            dst_scale *= 0.8f;
+            calcDestination();
+        }
+
+
         internal void BendMore()
         {
             bend_i = Math.Min(bend_i + 1, bend_t);
