@@ -85,9 +85,9 @@ namespace TinyLive
             final_ang = bend * MathCache.F_PI;
 
             int src_bend_x = (int)(src_origin_x * (1.0 - bend));
-            int dst_bend_x = (int)(dst_origin_x * (1.0 - bend));
-            bent_pixels = src_origin_x - src_bend_x;
+            int dst_bend_x = (int)(src_bend_x / dst_scale);
 
+            bent_pixels = src_origin_x - src_bend_x;
 
             dst_x_bend_start = dst_origin_x - dst_bend_x;
             dst_x_bend_end = dst_origin_x + dst_bend_x;

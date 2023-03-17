@@ -36,7 +36,7 @@ namespace TinyLive
                     for (int x = trans.dst_x_bend_start + 1; x < trans.dst_x_bend_end; x += 1)
                     {
                         // rectanliner 
-                        int sx = (int)((x - trans.dst_origin_x) * scales);
+                        int sx = (int)((x - trans.dst_origin_x) * scales) + trans.src_origin_x;
                         float fy = ((y - trans.dst_origin_y) * trans.dst_scale) * trans.src_scale;
                         int sy = (int)fy + trans.src_origin_y + trans.src_origin_y;
 
