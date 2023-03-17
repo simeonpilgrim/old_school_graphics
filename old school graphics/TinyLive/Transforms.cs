@@ -1,7 +1,4 @@
-﻿//#define SAVE_GIF
-#define SAVE_JPG
-
-using System;
+﻿using System;
 
 namespace TinyLive
 {
@@ -41,8 +38,6 @@ namespace TinyLive
         public int src_x_bend_start;
         public int src_x_bend_end;
 
-        public int src_half_width_minus_bend_x;
-        public int src_half_width_plus_bend_x;
         public float bent_pixels_final_ang;
 
         public float src_scale;
@@ -97,8 +92,8 @@ namespace TinyLive
             dst_x_bend_start = dst_origin_x - dst_bend_x;
             dst_x_bend_end = dst_origin_x + dst_bend_x;
 
-            src_half_width_minus_bend_x = src_origin_x - src_bend_x;
-            src_half_width_plus_bend_x = src_origin_x + src_bend_x;
+            src_x_bend_start = src_origin_x - src_bend_x;
+            src_x_bend_end = src_origin_x + src_bend_x;
             bent_pixels_final_ang = bent_pixels / final_ang;
         }
 

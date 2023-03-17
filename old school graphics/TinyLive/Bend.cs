@@ -71,7 +71,7 @@ namespace TinyLive
 
                             if (mod_ang <= trans.final_ang)
                             {
-                                int rad_x = (int)(-mod_ang * trans.bent_pixels_final_ang) + trans.src_half_width_minus_bend_x;
+                                int rad_x = (int)(-mod_ang * trans.bent_pixels_final_ang) + trans.src_x_bend_start;
                                 if (rad_x < src.src_w && rad_x >= 0)
                                 {
                                     int src_x = rad_x;
@@ -80,7 +80,7 @@ namespace TinyLive
                                     dst.SetPixelArgb(dst_x, trans.dst_origin_y - dst_y, c);
                                 }
 
-                                int rad_x2 = (int)(mod_ang * trans.bent_pixels_final_ang) + trans.src_half_width_plus_bend_x;
+                                int rad_x2 = (int)(mod_ang * trans.bent_pixels_final_ang) + trans.src_x_bend_end;
                                 if (rad_x2 < src.src_w && rad_x2 >= 0)
                                 {
                                     int src_x = rad_x2;
@@ -92,7 +92,7 @@ namespace TinyLive
 
                             if (tmod_ang <= trans.final_ang)
                             {
-                                int rad_x = (int)(-tmod_ang * trans.bent_pixels_final_ang) + trans.src_half_width_minus_bend_x;
+                                int rad_x = (int)(-tmod_ang * trans.bent_pixels_final_ang) + trans.src_x_bend_start;
 
                                 if (rad_x < src.src_w && rad_x >= 0)
                                 {
@@ -101,7 +101,7 @@ namespace TinyLive
                                     dst.SetPixelArgb(dst_x, dst_y + trans.dst_origin_y, c);
                                 }
 
-                                int rad_x2 = (int)(tmod_ang * trans.bent_pixels_final_ang) + trans.src_half_width_plus_bend_x;
+                                int rad_x2 = (int)(tmod_ang * trans.bent_pixels_final_ang) + trans.src_x_bend_end;
                                 if (rad_x2 < src.src_w && rad_x2 >= 0)
                                 {
                                     int src_x = rad_x2;
