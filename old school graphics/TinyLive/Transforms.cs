@@ -116,12 +116,24 @@ namespace TinyLive
 
         internal void SrcMoveLeft()
         {
-            throw new NotImplementedException();
+            int adj = 10;
+            src_origin_x -= adj;
+
+            src_from_x = Math.Max(0, src_from_x - adj);
+            src_to_x = Math.Min(src_width, src_origin_x + (src_width / 2));
+
+            CalcDestination();
         }
 
         internal void SrcMoveRight()
         {
-            throw new NotImplementedException();
+            int adj = 10;
+            src_origin_x += adj;
+
+            src_from_x = Math.Max(0, src_origin_x - (src_width / 2));
+            src_to_x = Math.Min(src_width, src_to_x + adj);
+
+            CalcDestination();
         }
 
         internal void SrcMoveUp()

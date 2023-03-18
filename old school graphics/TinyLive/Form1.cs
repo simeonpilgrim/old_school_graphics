@@ -35,10 +35,10 @@ namespace TinyLive
                 //case 's': trans.DstMoveDown(); break;
                 //case 'a': trans.DstMoveLeft(); break;
                 //case 'd': trans.DstMoveRight(); break;
-                case 'r': trans.SrcMoveUp(); break;
-                case 'f': trans.SrcMoveDown(); break;
-                case 't': trans.SrcMoveLeft(); break;
-                case 'g': trans.SrcMoveRight(); break;
+                case 't': trans.SrcMoveUp(); break;
+                case 'g': trans.SrcMoveDown(); break;
+                case 'f': trans.SrcMoveLeft(); break;
+                case 'h': trans.SrcMoveRight(); break;
             }
 
             UpdatePicture();
