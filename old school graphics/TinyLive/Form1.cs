@@ -30,6 +30,7 @@ namespace TinyLive
                 case 'e': trans.BendMore(); break;
                 case 'z': trans.DstZoomOut(); break;
                 case 'c': trans.DstZoomIn(); break;
+                case 'x': trans.ResetToDefaults(); break;
                 //case 'w': trans.DstMoveUp(); break;
                 //case 's': trans.DstMoveDown(); break;
                 //case 'a': trans.DstMoveLeft(); break;
