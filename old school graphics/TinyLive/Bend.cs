@@ -31,9 +31,13 @@ namespace TinyLive
 
             // middle non-bend
             {
+                int dst_x_start = Math.Max(trans.dst_x_bend_start, 0) + 1;
+                int dst_x_end = Math.Min(trans.dst_x_bend_end, trans.dst_width);
+
                 for (int y = 0; y < trans.dst_height; y += 1)
                 {
-                    for (int x = trans.dst_x_bend_start + 1; x < trans.dst_x_bend_end; x += 1)
+                    
+                    for (int x = dst_x_start; x < dst_x_end; x += 1)
                     {
                         // rectanliner 
                         int sx = (int)((x - trans.dst_origin_x) * scales) + trans.src_origin_x;
