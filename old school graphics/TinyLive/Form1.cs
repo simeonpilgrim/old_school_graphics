@@ -10,7 +10,8 @@ namespace TinyLive
         {
             InitializeComponent();
 
-            src = Raw.ToRaw(@"C:\temp\tinyplanet-1.jpg");
+            //src = Raw.ToRaw(@"C:\temp\checker.png");
+            src = Raw.ToRaw(@"C:\temp\tinyplanet-1_small.jpg");
 
             trans = new Transforms(src.src_h, src.src_w);
 

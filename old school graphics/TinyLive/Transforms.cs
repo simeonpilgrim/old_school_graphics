@@ -1,16 +1,65 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace TinyLive
 {
+    public class BenderPoint
+    {
+        int bend_i = 0;
+        int bend_t = 20;
+        float bend;
+        //public float bent_pixels;
+        public float final_ang;
+
+        int bend_start_x;
+        int bend_end_x;
+
+        public void BendCalc(int src_half_width)
+        {
+            bend = bend_i / ((float)bend_t); // turn to percentage;
+            final_ang = bend * MathCache.F_PI;
+
+            int bend_x_len = (int)(src_half_width * bend);
+
+            bend_start_x = src_half_width - src_half_width;
+            bend_end_x = src_half_width + src_half_width;
+
+            //int src_bend_x = (int)(src_origin_x * (1.0 - bend));
+            //int dst_bend_x = (int)(src_bend_x / dst_scale);
+        }
+
+        public bool InBend(PointF pointF, ref Point point)
+        {
+            point.Y = (int)pointF.Y;
+
+            if (pointF.X <= bend_start_x)
+            {
+                point.X = (int)pointF.X + bend_start_x;
+                return false;
+            } else if (pointF.X > bend_end_x)
+            {
+                point.X = (int)pointF.X - bend_start_x;
+                return false;
+            }
+            point.X = (int)pointF.X;
+            return true;
+        }
+
+        public void More()
+        {
+            bend_i = Math.Min(bend_i + 1, bend_t);
+        }
+        public void Less()
+        {
+            bend_i = Math.Max(bend_i - 1, 0);
+        }
+    }
+
     public class Transforms
     {
-        public readonly int src_height;
-        public readonly int src_width;
-
-        public int src_from_x;
-        public int src_to_x;
-        public int src_from_y;
-        public int src_to_y;
+        public readonly int src_img_height;
+        public readonly int src_img_width;
 
         public int dst_height;
         public int dst_width;
@@ -24,56 +73,45 @@ namespace TinyLive
         public int dst_max_origin_x;
         public int dst_max_origin_y;
 
-        public int bend_i = 15;
-        public int bend_t = 20;
+        float dst_scale;
 
-        public float bend;
-
-        public float bent_pixels;
-        public float final_ang;
-
-        public int dst_x_bend_start;
-        public int dst_x_bend_end;
-
-        public int src_x_bend_start;
-        public int src_x_bend_end;
-
-        public float bent_pixels_final_ang;
-
-        public float src_scale;
-        public float dst_scale;
+        public Matrix src_matrix;
+        public Matrix dst_matrix;
+        public BenderPoint bender;
 
         public Transforms(int height, int width)
         {
-            src_height = height;
-            src_width = width;
+
+            bender = new BenderPoint();
+
+            src_img_height = height;
+            src_img_width = width;
 
             // seems a little odd, but the pump needs to be primed, to the Reset will calculate
             // the correct ratio for both the starting case, and the mid run case.
-            dst_height = src_height * 2;
-            dst_width = (src_height * 2) + (src_width / 2);
+            dst_height = src_img_height * 2;
+            dst_width = (src_img_height * 2) + (src_img_width / 2);
 
             ResetToDefaults();
         }
 
         public void ResetToDefaults()
         {
-            src_origin_x = src_width / 2;
-            src_origin_y = src_height / 2;
+            src_origin_x = src_img_width / 2;
+            src_origin_y = src_img_height / 2;
 
-            src_from_x = 0;
-            src_to_x = src_width;
-            src_from_y = 0;
-            src_to_y = src_height;
+            src_matrix = new Matrix(1, 0, 0, 1, -src_origin_x, -src_origin_y);
 
-            var o_dst_height = src_height * 2;
-            var o_dst_width = (src_height * 2) + (src_width / 2);
+            var o_dst_height = src_img_height * 2;
+            var o_dst_width = (src_img_height * 2) + (src_img_width / 2);
 
             double new_ratio = Math.Sqrt(dst_width * dst_width + dst_height * dst_height);
             double old_ratio = Math.Sqrt(o_dst_width * o_dst_width + o_dst_height * o_dst_height);
 
             dst_scale = (float)(old_ratio / new_ratio);
-            src_scale = 1f;
+
+            dst_origin_x = dst_width / 2;
+            dst_origin_y = dst_height / 2;
 
             CalcDestination();
         }
@@ -84,61 +122,68 @@ namespace TinyLive
             dst_origin_y = dst_height / 2;
 
             dst_max_origin_x = Math.Max(
-                Math.Max(dst_origin_x - 0, 0),
+                Math.Max(dst_origin_x, 0),
                 Math.Max(dst_width - dst_origin_x, 0));
 
             dst_max_origin_y = Math.Max(
-                Math.Max(dst_origin_y - 0, 0),
+                Math.Max(dst_origin_y, 0),
                 Math.Max(dst_height - dst_origin_y, 0));
 
+            dst_matrix = new Matrix(1, 0, 0, 1, dst_origin_x, dst_origin_y);
+            dst_matrix.Scale(dst_scale, dst_scale);
 
-            /////
-            bend = bend_i / ((float)bend_t); // turn to percentage;
-            final_ang = bend * MathCache.F_PI;
-
-            int src_bend_x = (int)(src_origin_x * (1.0 - bend));
-            int dst_bend_x = (int)(src_bend_x / dst_scale);
-
-            bent_pixels = src_origin_x - src_bend_x;
-
-            dst_x_bend_start = dst_origin_x - dst_bend_x;
-            dst_x_bend_end = dst_origin_x + dst_bend_x;
-
-            src_x_bend_start = src_origin_x - src_bend_x;
-            src_x_bend_end = src_origin_x + src_bend_x;
-            bent_pixels_final_ang = bent_pixels / final_ang;
+            bender.BendCalc(src_img_width/2);
         }
 
-        internal void SrcMoveDown()
-        {
-            throw new NotImplementedException();
-        }
+
 
         internal void SrcMoveLeft()
         {
-            int adj = 10;
-            src_origin_x -= adj;
-
-            src_from_x = Math.Max(0, src_from_x - adj);
-            src_to_x = Math.Min(src_width, src_origin_x + (src_width / 2));
-
+            src_origin_x -= 10;
             CalcDestination();
         }
 
         internal void SrcMoveRight()
         {
-            int adj = 10;
-            src_origin_x += adj;
-
-            src_from_x = Math.Max(0, src_origin_x - (src_width / 2));
-            src_to_x = Math.Min(src_width, src_to_x + adj);
-
+            src_origin_x += 10;
             CalcDestination();
         }
 
         internal void SrcMoveUp()
         {
-            throw new NotImplementedException();
+            src_origin_y += 10;
+            CalcDestination();
+        }
+
+        internal void SrcMoveDown()
+        {
+            src_origin_y -= 10;
+            CalcDestination();
+        }
+
+   
+        internal void DstMoveLeft()
+        {
+            dst_origin_x -= 10;
+            CalcDestination();
+        }
+
+        internal void DstMoveRight()
+        {
+            dst_origin_x += 10;
+            CalcDestination();
+        }
+
+        internal void DstMoveUp()
+        {
+            dst_origin_y -= 10;
+            CalcDestination();
+        }
+
+        internal void DstMoveDown()
+        {
+            dst_origin_y += 10;
+            CalcDestination();
         }
 
         internal void DstZoomIn()
@@ -156,13 +201,13 @@ namespace TinyLive
 
         internal void BendMore()
         {
-            bend_i = Math.Min(bend_i + 1, bend_t);
+            bender.More();
             CalcDestination();
         }
 
         internal void BendLess()
         {
-            bend_i = Math.Max(bend_i - 1, 0);
+            bender.Less();
             CalcDestination();
         }
 
