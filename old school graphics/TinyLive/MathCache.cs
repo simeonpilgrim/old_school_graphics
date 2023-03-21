@@ -4,10 +4,8 @@ namespace TinyLive
 {
     public class MathCache
     {
-#if DEBUG
-        readonly int Height;
-#endif
-        readonly int Width;
+        public readonly int Height;
+        public readonly int Width;
         readonly float[] _Angle;
         readonly float[] _Length;
 
@@ -19,9 +17,7 @@ namespace TinyLive
 
         public MathCache(int h, int w)
         {
-#if DEBUG
             Height = h;
-#endif 
             Width = w;
             _Angle = new float[h * w];
             _Length = new float[h * w];
