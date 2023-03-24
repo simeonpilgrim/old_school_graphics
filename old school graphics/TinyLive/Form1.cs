@@ -11,7 +11,7 @@ namespace TinyLive
             InitializeComponent();
 
             //src = Raw.ToRaw(@"C:\temp\checker.png");
-            src = Raw.ToRaw(@"C:\temp\tinyplanet-1_small.jpg");
+            src = Raw.ToRaw(@"C:\temp\tinyplanet-1.jpg");
 
             trans = new Transforms(src.src_h, src.src_w);
 
@@ -58,8 +58,8 @@ namespace TinyLive
                 trans.dst_max_origin_y + 1 > mc.Height ||
                 trans.dst_max_origin_x + 1 > mc.Width)
             {
-                Console.WriteLine($"MC y: {trans.dst_max_origin_y + 100} x:{trans.dst_max_origin_x + 100}");
-                mc = new MathCache(trans.dst_max_origin_y + 100, trans.dst_max_origin_x + 100);
+               // Console.WriteLine($"MC y: {trans.dst_max_origin_y + 100} x:{trans.dst_max_origin_x + 100}");
+               // mc = new MathCache(trans.dst_max_origin_y + 100, trans.dst_max_origin_x + 100);
             }
 
             UpdatePicture();
