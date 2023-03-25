@@ -17,22 +17,13 @@ namespace TinyLive
             {
                 for (int win_x = 0; win_x < trans.dst_width; win_x++)
                 {
-                    PointF[] dstPoints = {
-                        new PointF(win_x, win_y)
-                    };
+                    float dst_x = (win_x - trans.dst_origin_x) * trans.dst_scale;
+                    float dst_y = (win_y - trans.dst_origin_y) * trans.dst_scale;
 
-                    trans.dst_matrix.TransformPoints(dstPoints);
-
-                    if (trans.bender.InBend(dstPoints[0], ref space))
+                    if (trans.bender.InBend(new PointF(dst_x, dst_y), ref space))
                     {
-                        PointF[] srcPoints = {
-                            new PointF(space.X, space.Y)
-                        };
-
-                        trans.src_matrix.TransformPoints(srcPoints);
-
-                        var src_x = (int)srcPoints[0].X;
-                        var src_y = (int)srcPoints[0].Y;
+                        var src_x = space.X + trans.src_origin_x;
+                        var src_y = space.Y + trans.src_origin_y;
 
                         if (src_x >= 0 && src_x < trans.src_img_width &&
                             src_y >= 0 && src_y < trans.src_img_height)

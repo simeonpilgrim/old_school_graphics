@@ -24,7 +24,7 @@ namespace TinyLive
 
             bend_start_x = -bend_x_len;
             bend_end_x = bend_x_len;
-
+             
             //int src_bend_x = (int)(src_origin_x * (1.0 - bend));
             //int dst_bend_x = (int)(src_bend_x / dst_scale);
         }
@@ -73,10 +73,8 @@ namespace TinyLive
         public int dst_max_origin_x;
         public int dst_max_origin_y;
 
-        float dst_scale;
+        public float dst_scale;
 
-        public Matrix src_matrix;
-        public Matrix dst_matrix;
         public BenderPoint bender;
 
         public Transforms(int height, int width)
@@ -100,8 +98,6 @@ namespace TinyLive
             src_origin_x = src_img_width / 2;
             src_origin_y = src_img_height / 2;
 
-            src_matrix = new Matrix(1, 0, 0, 1, src_origin_x, src_origin_y);
-
             var o_dst_height = src_img_height * 2;
             var o_dst_width = (src_img_height * 2) + (src_img_width / 2);
 
@@ -118,9 +114,6 @@ namespace TinyLive
 
         void CalcDestination()
         {
-            dst_origin_x = dst_width / 2;
-            dst_origin_y = dst_height / 2;
-
             dst_max_origin_x = Math.Max(
                 Math.Max(dst_origin_x, 0),
                 Math.Max(dst_width - dst_origin_x, 0));
@@ -129,10 +122,7 @@ namespace TinyLive
                 Math.Max(dst_origin_y, 0),
                 Math.Max(dst_height - dst_origin_y, 0));
 
-            dst_matrix = new Matrix(1, 0, 0, 1, -dst_origin_x, -dst_origin_y);
-            dst_matrix.Scale(dst_scale, dst_scale);
-
-            bender.BendCalc(src_img_width/2);
+            bender.BendCalc(src_img_width / 2);
         }
 
 
@@ -161,7 +151,7 @@ namespace TinyLive
             CalcDestination();
         }
 
-   
+
         internal void DstMoveLeft()
         {
             dst_origin_x -= 10;
@@ -217,8 +207,11 @@ namespace TinyLive
             // double old_ratio = Math.Sqrt(dst_width * dst_width + dst_height * dst_height);
             // dst_scale = (float)(dst_scale * old_ratio / new_ratio);
             dst_scale = 1;
-             dst_height = height;
+            dst_height = height;
             dst_width = width;
+
+            dst_origin_x = dst_width / 2;
+            dst_origin_y = dst_height / 2;
 
             CalcDestination();
         }

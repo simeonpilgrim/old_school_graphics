@@ -32,12 +32,12 @@ namespace TinyLive
                 case 'z': trans.DstZoomOut(); break;
                 case 'c': trans.DstZoomIn(); break;
                 case 'x': trans.ResetToDefaults(); break;
-                //case 'w': trans.DstMoveUp(); break;
-                //case 's': trans.DstMoveDown(); break;
+                case 'w': trans.DstMoveUp(); break;
+                case 's': trans.DstMoveDown(); break;
                 case 'a': trans.DstMoveLeft(); break;
                 case 'd': trans.DstMoveRight(); break;
-                //case 't': trans.SrcMoveUp(); break;
-                //case 'g': trans.SrcMoveDown(); break;
+                case 't': trans.SrcMoveUp(); break;
+                case 'g': trans.SrcMoveDown(); break;
                 case 'f': trans.SrcMoveLeft(); break;
                 case 'h': trans.SrcMoveRight(); break;
             }
@@ -55,8 +55,8 @@ namespace TinyLive
             trans.Resize(pictureBox1.Width, pictureBox1.Height);
 
             if (mc == null ||
-                trans.dst_max_origin_y + 1 > mc.Height ||
-                trans.dst_max_origin_x + 1 > mc.Width)
+                trans.dst_max_origin_y > mc.Height ||
+                trans.dst_max_origin_x > mc.Width)
             {
                // Console.WriteLine($"MC y: {trans.dst_max_origin_y + 100} x:{trans.dst_max_origin_x + 100}");
                // mc = new MathCache(trans.dst_max_origin_y + 100, trans.dst_max_origin_x + 100);
@@ -70,7 +70,6 @@ namespace TinyLive
             dst = Bender.Bend(src, mc, trans);
 
             pictureBox1.Image = dst.ToBitmap();
-            //pictureBox1.Refresh();
         }
     }
 }
